@@ -1,124 +1,36 @@
-## SWP PROJECT
-1. KHO LỆNH GITHUB
+This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
 
-📌. ** Cách kiểm tra đóng góp cá nhân trên GitHub`:**
- ```sh
-  
-   git shortlog -s -n
-  ```
+## Getting Started
 
-### Mô hình nhánh hợp lý:
-- **`main`** → Chỉ merge code đã kiểm tra xong.
-- **`develop`** → Nhánh chính để phát triển (mọi tính năng sẽ merge vào đây trước).
-- **Nhánh cá nhân (`feature/xxx`)** → Mỗi thành viên tự code trên nhánh riêng.
+First, run the development server:
 
----
-
-### Cách làm việc cụ thể:
-
-#### (1) Mỗi tính năng sẽ tạo một nhánh riêng
-Ví dụ: Bạn đang làm chức năng **login**, tạo nhánh như sau:
-```sh
-git checkout develop 
-git checkout -b feature/login
+```bash
+npm run dev
+# or
+yarn dev
+# or
+pnpm dev
+# or
+bun dev
 ```
 
-#### (2) Làm xong thì commit & push
-```sh
-git add .
-git commit -m "Thêm chức năng login"
-git push origin feature/login
-```
+Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
 
-#### (3) Merge code vào `develop` trước
-Sau khi hoàn tất tính năng, merge vào **develop**:
-```sh
-git checkout develop
-git pull origin develop
-git merge feature/login
-git push origin develop
-```
+You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
 
-#### (4) Chỉ merge `develop` vào `main` khi code đã ổn định
-```sh
-git checkout main
-git merge develop
-git push origin main
-```
+This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
 
----
+## Learn More
 
-### 🛠 Cách xóa nhánh Git đúng cách
-#### (1) Xóa nhánh local (trên máy)
+To learn more about Next.js, take a look at the following resources:
 
-```sh
-git branch -d feature/abc  # Xóa nhánh đã merge
-git branch -D feature/abc  # Xóa nhánh chưa merge (nếu chắc chắn không cần nữa)
-```
+- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
+- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
 
-#### (2) Xóa nhánh trên remote (GitHub)
-git push origin --delete feature/abc
+You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
 
+## Deploy on Vercel
 
-### Một số lệnh hữu ích khác:
+The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
 
-**Kiểm tra trạng thái của Git:**
-```sh
-git status
-```
-
-**Xem danh sách nhánh(Kiểm tra xem bạn đang ở nhánh nào):**
-```sh
-git branch
-```
-
-**Xóa nhánh sau khi merge (local & remote):**
-```sh
-git branch -d feature/login  # Xóa nhánh local
-git push origin --delete feature/login  # Xóa nhánh trên remote
-```
-
-**Lấy code mới nhất từ remote:**
-```sh
-git pull origin main  # Hoặc develop
-```
-
----
-### Nếu commit cũ bị lỗi, làm sao cập nhật lại?
-
-1. **Sửa lỗi trong code**, sau đó commit lại:
-   ```sh
-   git add .
-   git commit -m "Sửa lỗi login"
-   ```
-
-2. **Nếu chưa push, chỉnh sửa commit cuối cùng:**
-   ```sh
-   git commit --amend -m "Cập nhật lại login"
-   ```
-
-3. **Nếu đã push, sửa lại và force push:**
-   ```sh
-   git push origin feature/login --force
-   ```
-
-4. **Nếu muốn revert commit lỗi (đã push):**
-   ```sh
-   git revert <commit_id>
-   git push origin feature/login
-   ```
-
-5. **Nếu muốn reset về trạng thái trước commit lỗi:**
-   ```sh
-   git reset --hard <commit_id>
-   git push origin feature/login --force
-   ```
-
-6. **Nếu commit lỗi đã merge vào `develop` hoặc `main`:**
-   ```sh
-   git revert <commit_id>  # Tạo commit mới để đảo ngược commit lỗi
-   git push origin develop  # Hoặc main
-   ```
-   
-
-
+Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
