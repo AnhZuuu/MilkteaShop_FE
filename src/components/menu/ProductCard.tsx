@@ -15,9 +15,9 @@ interface Product {
   Price: number;             // Price of the product
   Size: string[];            // Available sizes for the product
   IsActive: boolean;         // Status of the product (active/inactive)
-  CreatedAt: number;         // Timestamp for when the product was created
-  UpdatedAt: number;         // Timestamp for when the product was updated
-  DeletedAt: number;         // Timestamp for when the product was deleted
+  CreatedAt: Date;         // Timestamp for when the product was created
+  UpdatedAt: Date;         // Timestamp for when the product was updated
+  DeletedAt: Date;         // Timestamp for when the product was deleted
   CreatedBy: string;         // Creator of the product
   UpdatedBy: string;         // User who last updated the product
   Id: string;                // Unique ID of the product
