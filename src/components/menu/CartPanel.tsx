@@ -1,40 +1,55 @@
 import React from 'react';
 
 interface CartItem {
-  id: number;
-  name: string;
-  price: number;
-  image: string;
-  category: string;
-  note: string;
+  // id: number;
+  // name: string;
+  // price: number;
+  // image: string;
+  // category: string;
+  // note: string;
+  ProductName: string;       // Name of the product
+  CategoryId: string;        // ID of the category the product belongs to
+  Description: string;       // Description of the product
+  ImageUrl: string;          // URL of the product's image
+  Price: number;             // Price of the product
+  Size: string[];            // Available sizes for the product
+  IsActive: boolean;         // Status of the product (active/inactive)
+  CreatedAt: number;         // Timestamp for when the product was created
+  UpdatedAt: number;         // Timestamp for when the product was updated
+  DeletedAt: number;         // Timestamp for when the product was deleted
+  CreatedBy: string;         // Creator of the product
+  UpdatedBy: string;         // User who last updated the product
+  Id: string;                // Unique ID of the product
 }
 
 interface CartPanelProps {
   cart: CartItem[];
-  onNoteChange: (index: number, note: string) => void;
+  // onNoteChange: (index: number, note: string) => void;
   onRemove: (index: number) => void;
 }
 
-const CartPanel: React.FC<CartPanelProps> = ({ cart, onNoteChange, onRemove }) => {
+// const CartPanel: React.FC<CartPanelProps> = ({ cart, onNoteChange, onRemove }) => {
+const CartPanel: React.FC<CartPanelProps> = ({ cart, onRemove }) => {
+
   const totalItems = cart.length;
-  const totalPrice = cart.reduce((sum, item) => sum + item.price, 0);
+  const totalPrice = cart.reduce((sum, item) => sum + item.Price, 0);
 
   return (
     <div>
       <h2 className="text-xl font-semibold mb-4">Giỏ hàng</h2>
       {cart.map((item, index) => (
-        <div key={item.id} className="flex items-start mb-4 bg-gray-700 p-2 rounded-lg relative">
-          <img src={item.image} alt={item.name} className="w-12 h-12 object-cover rounded mr-3" />
+        <div key={item.Id} className="flex items-start mb-4 bg-gray-700 p-2 rounded-lg relative">
+          <img src={item.ImageUrl} alt={item.ProductName} className="w-12 h-12 object-cover rounded mr-3" />
           <div className="flex-1">
-            <h3 className="font-medium text-sm">{item.name}</h3>
-            <p className="text-xs text-gray-300">Giá: {item.price.toLocaleString()}₫</p>
-            <textarea
+            <h3 className="font-medium text-sm">{item.ProductName}</h3>
+            <p className="text-xs text-gray-300">Giá: {item.Price.toLocaleString()}₫</p>
+            {/* <textarea
               className="mt-2 w-full text-black text-sm p-1 rounded"
               rows={2}
               placeholder="Ghi chú..."
               value={item.note}
               onChange={(e) => onNoteChange(index, e.target.value)}
-            />
+            /> */}
           </div>
           <button
             onClick={() => onRemove(index)}
