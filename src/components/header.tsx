@@ -15,7 +15,7 @@ const Header: React.FC = () => {
 
     return <>
         <div style={{display: 'flex', justifyContent: 'space-between', alignItems:'center', backgroundColor:'#2596be', padding:'10px'}}>
-            <Link
+            {/* <Link
 
                 href='/'
                 className="inline-flex items-center px-3 py-2 text-sm font-medium text-center text-white bg-transparent rounded-lg hover:bg-gray-700 focus:ring-4 focus:outline-none focus:ring-gray mr-20"
@@ -38,7 +38,7 @@ const Header: React.FC = () => {
             >
                 Chia sẻ
             </Link>
-            </div>
+            </div> */}
             <Link
                 href='/premium'
                 className="inline-flex items-center px-3 py-2 text-sm font-medium text-center text-black bg-white rounded-lg hover:bg-gray-200 focus:ring-4 focus:outline-none focus:ring-white focus:bg-white mr-20"
