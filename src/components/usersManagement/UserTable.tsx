@@ -3,6 +3,7 @@ import React, { useState, useCallback, useMemo, useEffect } from "react";
 import { format } from "date-fns";
 import { FiEdit2, FiEye, FiTrash2, FiSearch } from "react-icons/fi";
 import { IoMdArrowDropdown, IoMdArrowDropup } from "react-icons/io";
+import { DeleteConfirmationModal, DeleteUserHandle } from "./HandleDeleteUser";
 
 interface User {
   Id: string;
@@ -19,30 +20,32 @@ interface User {
   CreatedBy: string;
 }
 
-interface DeleteConfirmationModalProps {
-  onClose: () => void;
-  onConfirm: () => void;
-}
-
 const UserTable = () => {
+  const [users, setUsers] = useState<User[]>([]);
+  const [userInfo, setUserInfo] = useState<any>(null);
   const [searchTerm, setSearchTerm] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
-  const [showDeleteModal, setShowDeleteModal] = useState(false);
-  const [selectedUser, setSelectedUser] = useState(null);
   const [roleFilter, setRoleFilter] = useState("all");
   const [statusFilter, setStatusFilter] = useState("all");
-  const [users, setUsers] = useState<User[]>([]);
+
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [selectedUser, setSelectedUser] = useState<User | null>(null);
 
   useEffect(() => {
+    const storedUserInfo = localStorage.getItem("userInfo");
+    if (storedUserInfo) {
+      setUserInfo(JSON.parse(storedUserInfo));
+    }
+
     const fetchUsers = async () => {
       try {
         const response = await fetch(
           "https://6804e5fd79cb28fb3f5c1a6d.mockapi.io/swp391/Users"
         );
         const data: User[] = await response.json();
-        console.log("Fetched DATA:", data); 
-        setUsers(data); 
+        console.log("Fetched DATA:", data);
+        setUsers(data);
       } catch (error) {
         console.log("Error fetching users:", error);
       }
@@ -61,8 +64,9 @@ const UserTable = () => {
       const matchesRole = roleFilter === "all" || user.Role === roleFilter;
 
       const userStatus = user.IsActive === true ? "Active" : "Block";
-      const matchesStatus = statusFilter === "all" || userStatus === statusFilter;
-      
+      const matchesStatus =
+        statusFilter === "all" || userStatus === statusFilter;
+
       return matchesSearch && matchesRole && matchesStatus;
     });
   }, [users, searchTerm, roleFilter, statusFilter]);
@@ -78,33 +82,10 @@ const UserTable = () => {
     setCurrentPage(page);
   };
 
-  const handleDeleteClick = (user: any) => {
+  const handleDeleteClick = (user: User) => {
     setSelectedUser(user);
     setShowDeleteModal(true);
   };
-
-  const DeleteConfirmationModal = ({ onClose, onConfirm }: DeleteConfirmationModalProps) => (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-      <div className="bg-white p-6 rounded-lg shadow-xl max-w-md w-full">
-        <h3 className="text-xl font-semibold mb-4">Confirm Delete</h3>
-        <p className="mb-6">Are you sure you want to delete this user?</p>
-        <div className="flex justify-end space-x-4">
-          <button
-            onClick={onClose}
-            className="px-4 py-2 bg-gray-200 rounded-md hover:bg-gray-300"
-          >
-            Cancel
-          </button>
-          <button
-            onClick={onConfirm}
-            className="px-4 py-2 bg-red-500 text-white rounded-md hover:bg-red-600"
-          >
-            Delete
-          </button>
-        </div>
-      </div>
-    </div>
-  );
 
   return (
     <div className="container mx-auto px-4 py-8">
@@ -148,7 +129,6 @@ const UserTable = () => {
 
       <div className="overflow-x-auto bg-white rounded-lg shadow">
         <table className="min-w-full table-auto">
-
           <thead>
             <tr className="bg-gray-50">
               {[
@@ -169,7 +149,6 @@ const UserTable = () => {
                 >
                   <div className="flex items-center space-x-1">
                     <span>{column.label}</span>
-                    
                   </div>
                 </th>
               ))}
@@ -185,13 +164,26 @@ const UserTable = () => {
                 }`}
               >
                 <td className="px-6 py-4 whitespace-nowrap">{user.Id}</td>
-                <td className="px-6 py-4 whitespace-nowrap">{user.Username}</td>
+                <td className="px-6 py-4 whitespace-nowrap">
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 overflow-hidden rounded-full">
+                      <img
+                        width={40}
+                        height={40}
+                        src={user.ImageUrl}
+                        alt={user.Username}
+                      />
+                    </div>
+
+                    {user.Username}
+                  </div>
+                </td>
                 <td className="px-6 py-4 whitespace-nowrap">{user.Email}</td>
                 <td className="px-6 py-4 whitespace-nowrap">
                   {user.PhoneNumber}
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap">{user.Role}</td>
-                <td className="px-6 py-4 whitespace-nowrap">                  
+                <td className="px-6 py-4 whitespace-nowrap">
                   <span
                     className={`px-2 py-1 rounded-full text-xs font-semibold ${
                       user.IsActive === true
@@ -206,7 +198,11 @@ const UserTable = () => {
                   {format(user.CreatedAt, "MMM dd, yyyy")}
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap">
-                  {format(user.UpdatedAt, "MMM dd, yyyy")}
+                  {user.IsActive == true ? (
+                    <div>{format(user.UpdatedAt, "MMM dd, yyyy")}</div>
+                  ) : (
+                    <div>{format(user.DeletedAt, "MMM dd, yyyy")}</div>
+                  )}
                 </td>
 
                 <td className="px-6 py-4 whitespace-nowrap">
@@ -287,18 +283,22 @@ const UserTable = () => {
         </div>
       </div>
 
-      {showDeleteModal && (
+      {showDeleteModal && selectedUser && (
         <DeleteConfirmationModal
-          onClose={() => setShowDeleteModal(false)}
-          onConfirm={() => {
-            // Handle delete logic here
-            setShowDeleteModal(false);
-          }}
-        />
+        onClose={() => setShowDeleteModal(false)}
+        onConfirm={() => {
+          DeleteUserHandle(
+            selectedUser,
+            users,
+            setUsers,
+            setShowDeleteModal,
+            setSelectedUser
+          );
+        }}
+      />
       )}
     </div>
   );
 };
 
 export default UserTable;
-
