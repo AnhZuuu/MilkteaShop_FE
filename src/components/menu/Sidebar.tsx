@@ -37,7 +37,7 @@ const Sidebar: React.FC<SidebarProps> = ({
           "https://6801a85581c7e9fbcc430ea1.mockapi.io/swp391/categories"
         );
         const data = await response.json();
-        setCategories(data);
+        setCategories(data.filter((cate : any) => !cate.CategoryName.toLowerCase().includes("topping")));
       } catch (error) {
         console.log("Error fetching categories: ", error);
       }

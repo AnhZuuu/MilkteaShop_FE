@@ -57,7 +57,7 @@ const MenuPage = () => {
       try {
         const response = await fetch("https://6801a85581c7e9fbcc430ea1.mockapi.io/swp391/Products"); // Replace with your API URL
         const data = await response.json();
-        setProducts(data);
+        setProducts(data.filter((p : any) => p.ProductType !== "Extra"));
       } catch (error) {
         console.error("Error fetching products:", error);
       }
