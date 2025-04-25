@@ -1,10 +1,10 @@
+// src/app/layout.tsx
 import type { Metadata } from "next";
 import localFont from "next/font/local";
 import "./globals.css";
-// import Header from "@/components/header/Header";
 import AppHeader from "@/components/header/Header";
-// import Header from "@/components/header";
-// import Footer from "@/components/footer";
+
+
 
 const geistSans = localFont({
   src: "./fonts/GeistVF.woff",
@@ -33,7 +33,7 @@ export default function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
         {/* <Header/> */}
-        <AppHeader/>
+        
         {children}
         {/* <Footer/> */}
       </body>
