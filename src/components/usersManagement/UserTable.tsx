@@ -4,6 +4,7 @@ import { format } from "date-fns";
 import { FiEdit2, FiEye, FiTrash2, FiSearch, FiPlus } from "react-icons/fi";
 import { IoMdArrowDropdown, IoMdArrowDropup } from "react-icons/io";
 import { DeleteConfirmationModal, DeleteUserHandle } from "./HandleDeleteUser";
+import { CreateUserModal } from "./HandleCreateUser";
 
 interface User {
   Id: string;
@@ -20,9 +21,22 @@ interface User {
   CreatedBy: string;
 }
 
-interface CreateConfirmationModalProps {
-  onClose: () => void;
-}
+//new interface
+// interface User {
+//   id: string;
+//   username: string;
+//   passwordHash: string;
+//   email: string;
+//   phoneNumber: string;
+//   imageUrl: string;
+//   role: string;
+//   isActive: boolean;
+//   orders : string[];
+//   createdAt: Date;
+//   updatedAt: Date;
+//   deletedAt: Date;
+//   createdBy: string;
+// }
 
 const UserTable = () => {
   const [users, setUsers] = useState<User[]>([]);
@@ -112,168 +126,6 @@ const UserTable = () => {
     }
   };
 
-  const handleCreateUser = async () => {
-    const generatedId = setIdUser(formData.Role);
-  
-    const newUser = {
-      ...formData,
-      Id: generatedId,
-      CreatedAt: new Date(),
-      CreatedBy: userInfo.Username || null,
-      UpdatedAt: new Date(),
-      DeletedAt: new Date(),
-    };
-  
-    try {
-      // Send user data to the API
-      const response = await fetch('https://6804e5fd79cb28fb3f5c1a6d.mockapi.io/swp391/Users', {  // Replace with your API endpoint
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(newUser),
-      });
-  
-      if (response.ok) {
-        const data = await response.json();
-        // Handle success (e.g., update UI, show success message, etc.)
-        console.log('User created successfully:', data);
-        users.push(newUser); // Add new user to the list in your state
-  
-        setShowCreateModal(false);
-        setFormData({
-          Username: "",
-          PasswordHash: "",
-          Email: "",
-          PhoneNumber: "",
-          ImageUrl: "",
-          Role: "Staff",
-          IsActive: true,
-        });
-      } else {
-        const error = await response.json();
-        // Handle error (e.g., show error message)
-        console.error('Error creating user:', error);
-      }
-    } catch (error) {
-      console.error('Network error:', error);
-      // Handle network error
-    }
-  };
-  
-  const CreateUserModal = ({ onClose }: CreateConfirmationModalProps) => (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-      <div className="bg-white p-8 rounded-lg shadow-xl max-w-lg w-full space-y-6">
-        <h3 className="text-2xl font-semibold text-gray-800 mb-6 text-center">Create New User</h3>
-        <form
-          onSubmit={(e) => {
-            e.preventDefault();
-            handleCreateUser();
-          }}
-        >
-          <div className="space-y-4">
-            <div>
-              <label className="block text-sm font-medium text-gray-700">Username</label>
-              <input
-                type="text"
-                className="mt-2 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-500"
-                value={formData.Username}
-                onChange={(e) =>
-                  setFormData({ ...formData, Username: e.target.value })
-                }
-                required
-                key={formData.Username} 
-              />
-            </div>
-            
-            <div>
-              <label className="block text-sm font-medium text-gray-700">Password</label>
-              <input
-                type="password"
-                className="mt-2 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-500"
-                value={formData.PasswordHash}
-                onChange={(e) =>
-                  setFormData({ ...formData, PasswordHash: e.target.value })
-                }
-                required
-              />
-            </div>
-  
-            <div>
-              <label className="block text-sm font-medium text-gray-700">Email</label>
-              <input
-                type="email"
-                className="mt-2 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-500"
-                value={formData.Email}
-                onChange={(e) =>
-                  setFormData({ ...formData, Email: e.target.value })
-                }
-                required
-              />
-            </div>
-  
-            <div>
-              <label className="block text-sm font-medium text-gray-700">Phone</label>
-              <input
-                type="text"
-                className="mt-2 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-500"
-                value={formData.PhoneNumber}
-                onChange={(e) =>
-                  setFormData({ ...formData, PhoneNumber: e.target.value })
-                }
-                required
-              />
-            </div>
-  
-            <div>
-              <label className="block text-sm font-medium text-gray-700">Image URL</label>
-              <input
-                type="text"
-                className="mt-2 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-500"
-                value={formData.ImageUrl}
-                onChange={(e) =>
-                  setFormData({ ...formData, ImageUrl: e.target.value })
-                }
-                required
-              />
-            </div>
-  
-            <div>
-              <label className="block text-sm font-medium text-gray-700">Role</label>
-              <select
-                className="mt-2 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-500"
-                value={formData.Role}
-                onChange={(e) =>
-                  setFormData({ ...formData, Role: e.target.value })
-                }
-              >
-                <option value="Admin">Admin</option>
-                <option value="Manager">Manager</option>
-                <option value="Staff">Staff</option>
-              </select>
-            </div>
-          </div>
-  
-          <div className="mt-6 flex justify-between space-x-4">
-            <button
-              type="button"
-              onClick={onClose}
-              className="px-6 py-3 w-1/3 text-sm font-medium text-gray-700 bg-gray-200 rounded-md hover:bg-gray-300"
-            >
-              Cancel
-            </button>
-            <button
-              type="submit"
-              className="px-6 py-3 w-1/3 text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700"
-            >
-              Create
-            </button>
-          </div>
-        </form>
-      </div>
-    </div>
-  );
-  
   return (
     <div className="container mx-auto px-4 py-8">
       <div className="mb-8">
@@ -476,8 +328,13 @@ const UserTable = () => {
       </div>
 
       {showCreateModal && (
-        <CreateUserModal onClose={() => setShowCreateModal(false)} />
-      )}
+        <CreateUserModal
+          onClose={() => setShowCreateModal(false)}
+          userInfo={userInfo}
+          users={users}
+          setUsers={setUsers}
+        />
+      )}the
 
       {showDeleteModal && selectedUser && (
         <DeleteConfirmationModal
