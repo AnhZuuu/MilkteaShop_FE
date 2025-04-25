@@ -2,9 +2,9 @@
 import React, { useState, useCallback, useMemo, useEffect } from "react";
 import { format } from "date-fns";
 import { FiEdit2, FiEye, FiTrash2, FiSearch, FiPlus } from "react-icons/fi";
-import { IoMdArrowDropdown, IoMdArrowDropup } from "react-icons/io";
 import { DeleteConfirmationModal, DeleteUserHandle } from "./HandleDeleteUser";
 import { CreateUserModal } from "./HandleCreateUser";
+import { UpdateUserModal } from "./HandleUpdateUser";
 
 interface User {
   Id: string;
@@ -51,6 +51,8 @@ const UserTable = () => {
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
 
   const [showCreateModal, setShowCreateModal] = useState(false);
+  const [showUpdateModal, setShowUpdateModal] = useState(false);
+  
   const [formData, setFormData] = useState({
     Username: "",
     PasswordHash: "",
@@ -116,14 +118,9 @@ const UserTable = () => {
     setShowDeleteModal(true);
   };
 
-  const setIdUser = (Role: any) => {
-    if (Role === "Admin") {
-      return "A" + (users.length + 1);
-    } else if (Role === "Manager") {
-      return "M" + (users.length + 1);
-    } else {
-      return "S" + (users.length + 1);
-    }
+  const handleUpdateClick = (user: User) => {
+    setSelectedUser(user);
+    setShowUpdateModal(true);
   };
 
   return (
@@ -182,7 +179,7 @@ const UserTable = () => {
                 { key: "PhoneNumber", label: "Phone Number" },
                 { key: "Role", label: "Role" },
                 { key: "Status", label: "Status" },
-                { key: "CreatedAt", label: "Created Date" },
+                // { key: "CreatedAt", label: "Created Date" },
                 { key: "UpdatedAt", label: "Updated Date" },
                 { key: "actions", label: "Actions" },
               ].map((column) => (
@@ -238,9 +235,9 @@ const UserTable = () => {
                     {user.IsActive === true ? "Active" : "Block"}
                   </span>
                 </td>
-                <td className="px-6 py-4 whitespace-nowrap">
+                {/* <td className="px-6 py-4 whitespace-nowrap">
                   {format(user.CreatedAt, "MMM dd, yyyy")}
-                </td>
+                </td> */}
                 <td className="px-6 py-4 whitespace-nowrap">
                   {user.IsActive == true ? (
                     <div>{format(user.UpdatedAt, "MMM dd, yyyy")}</div>
@@ -250,6 +247,7 @@ const UserTable = () => {
                 </td>
 
                 <td className="px-6 py-4 whitespace-nowrap">
+                {user.IsActive == true ? (
                   <div className="flex space-x-4">
                     <button
                       className="text-blue-600 hover:text-blue-800"
@@ -257,9 +255,11 @@ const UserTable = () => {
                     >
                       <FiEye className="w-5 h-5" />
                     </button>
-                    <button
+                    
+                      <button
                       className="text-green-600 hover:text-green-800"
                       title="Edit User"
+                      onClick={() => handleUpdateClick(user)}
                     >
                       <FiEdit2 className="w-5 h-5" />
                     </button>
@@ -269,8 +269,18 @@ const UserTable = () => {
                       onClick={() => handleDeleteClick(user)}
                     >
                       <FiTrash2 className="w-5 h-5" />
+                    </button>                               
+                  </div>
+                  ) : (
+                  <div className="flex space-x-4">
+                    <button
+                      className="text-blue-600 hover:text-blue-800"
+                      title="View Details"
+                    >
+                      <FiEye className="w-5 h-5" />
                     </button>
                   </div>
+                  )}
                 </td>
               </tr>
             ))}
@@ -334,7 +344,17 @@ const UserTable = () => {
           users={users}
           setUsers={setUsers}
         />
-      )}the
+      )}
+
+      {showUpdateModal && selectedUser && (
+        <UpdateUserModal
+          onClose={() => setShowUpdateModal(false)}
+          userInfo={userInfo}
+          selectedUser={selectedUser}
+          users={users}
+          setUsers={setUsers}
+        />
+      )}
 
       {showDeleteModal && selectedUser && (
         <DeleteConfirmationModal
