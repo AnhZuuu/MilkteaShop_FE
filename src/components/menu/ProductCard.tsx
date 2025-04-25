@@ -38,7 +38,11 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, onAddToCart }) => {
   const [toppings, setToppings] = useState<Product[]>([]);
   const [showToppingModal, setShowToppingModal] = useState(false);
   const [selectedToppings, setSelectedToppings] = useState<Product[]>([]);
+  const [selectedSize, setSelectedSize] = useState<string | null>(null);
 
+  const handleSizeClick = (size: string) => {
+    setSelectedSize(size);
+  };
   // Function to toggle topping selection
   const toggleTopping = (topping: Product) => {
     setSelectedToppings((prev: Product[]) =>
@@ -102,6 +106,22 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, onAddToCart }) => {
   }) => (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
       <div className="bg-[#1c2c41] p-6 rounded shadow-md w-96">
+        {/* Size Buttons */}
+        <div className="flex justify-center gap-2 mb-4">
+          {product.Size.map((size: string) => (
+            <button
+              key={size}
+              onClick={() => handleSizeClick(size)}
+              className={`px-4 py-1 rounded ${
+                selectedSize === size
+                  ? "bg-blue-600 text-white"
+                  : "bg-gray-300 text-black"
+              }`}
+            >
+              {size}
+            </button>
+          ))}
+        </div>
         <h2 className="text-lg font-bold mb-4 text-white">
           Chọn topping cho: {product.ProductName}
         </h2>
