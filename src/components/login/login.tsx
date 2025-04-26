@@ -156,7 +156,7 @@ const LoginComponent = () => {
                   onClick={() => setIsPhone(true)}
                   className="text-blue-400 hover:underline"
                 >
-                  Đăng ký
+                  Tại đây
                 </a>
               </>
             )}
