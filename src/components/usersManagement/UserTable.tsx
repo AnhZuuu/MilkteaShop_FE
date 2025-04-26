@@ -6,37 +6,29 @@ import { DeleteConfirmationModal, DeleteUserHandle } from "./HandleDeleteUser";
 import { CreateUserModal } from "./HandleCreateUser";
 import { UpdateUserModal } from "./HandleUpdateUser";
 
+//new interface
 interface User {
-  Id: string;
-  Username: string;
-  PasswordHash: string;
-  Email: string;
-  PhoneNumber: string;
-  ImageUrl: string;
-  Role: string;
-  IsActive: boolean;
-  CreatedAt: Date;
-  UpdatedAt: Date;
-  DeletedAt: Date;
-  CreatedBy: string;
+  id: string;
+  username: string;
+  passwordHash: string;
+  email: string;
+  phoneNumber: string;
+  imageUrl: string;
+  role: number;
+  isActive: boolean;
+  orders : string[];
+  createdAt: Date;
+  updatedAt: Date;
+  deletedAt: Date;
+  createdBy: string;
+  updatedBy: string;
 }
 
-//new interface
-// interface User {
-//   id: string;
-//   username: string;
-//   passwordHash: string;
-//   email: string;
-//   phoneNumber: string;
-//   imageUrl: string;
-//   role: string;
-//   isActive: boolean;
-//   orders : string[];
-//   createdAt: Date;
-//   updatedAt: Date;
-//   deletedAt: Date;
-//   createdBy: string;
-// }
+const roleMap: { [key: number]: string } = {
+  0: "Admin",
+  1: "Manager",
+  2: "Staff",
+};
 
 const UserTable = () => {
   const [users, setUsers] = useState<User[]>([]);
@@ -52,16 +44,6 @@ const UserTable = () => {
 
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [showUpdateModal, setShowUpdateModal] = useState(false);
-  
-  const [formData, setFormData] = useState({
-    Username: "",
-    PasswordHash: "",
-    Email: "",
-    PhoneNumber: "",
-    ImageUrl: "",
-    Role: "Staff",
-    IsActive: true,
-  });
 
   useEffect(() => {
     const storedUserInfo = localStorage.getItem("userInfo");
@@ -72,7 +54,8 @@ const UserTable = () => {
     const fetchUsers = async () => {
       try {
         const response = await fetch(
-          "https://6804e5fd79cb28fb3f5c1a6d.mockapi.io/swp391/Users"
+          // "https://6804e5fd79cb28fb3f5c1a6d.mockapi.io/swp391/Users"
+          "https://milkteashop-fmcufmfkaja8d6ec.southeastasia-01.azurewebsites.net/User/GetAll"
         );
         const data: User[] = await response.json();
         console.log("Fetched DATA:", data);
@@ -88,13 +71,13 @@ const UserTable = () => {
   const filteredUsers = useMemo(() => {
     return users.filter((user) => {
       const matchesSearch =
-        user.Username.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        user.Email.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        user.Role.toLowerCase().includes(searchTerm.toLowerCase());
+        user.username.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        user.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        roleMap[user.role].toLowerCase().includes(searchTerm.toLowerCase());
 
-      const matchesRole = roleFilter === "all" || user.Role === roleFilter;
+      const matchesRole = roleFilter === "all" || user.role === parseInt(roleFilter);
 
-      const userStatus = user.IsActive === true ? "Active" : "Block";
+      const userStatus = user.isActive === true ? "Active" : "Block";
       const matchesStatus =
         statusFilter === "all" || userStatus === statusFilter;
 
@@ -151,9 +134,9 @@ const UserTable = () => {
             onChange={(e) => setRoleFilter(e.target.value)}
           >
             <option value="all">All Roles</option>
-            <option value="Admin">Admin</option>
-            <option value="Manager">Manager</option>
-            <option value="Staff">Staff</option>
+            <option value="0">Admin</option>
+            <option value="1">Manager</option>
+            <option value="2">Staff</option>
           </select>
 
           <select
@@ -199,55 +182,55 @@ const UserTable = () => {
           <tbody className="bg-white divide-y divide-gray-200">
             {paginatedUsers.map((user, idx) => (
               <tr
-                key={user.Id}
+                key={user.id}
                 className={`hover:bg-gray-50 ${
                   idx % 2 === 0 ? "bg-white" : "bg-gray-50"
                 }`}
               >
-                <td className="px-6 py-4 whitespace-nowrap">{user.Id}</td>
+                <td className="px-6 py-4 whitespace-nowrap">{user.id}</td>
                 <td className="px-6 py-4 whitespace-nowrap">
                   <div className="flex items-center gap-3">
                     <div className="w-10 h-10 overflow-hidden rounded-full">
                       <img
                         width={40}
                         height={40}
-                        src={user.ImageUrl}
-                        alt={user.Username}
+                        src={user.imageUrl}
+                        alt={user.username}
                       />
                     </div>
 
-                    {user.Username}
+                    {user.username}
                   </div>
                 </td>
-                <td className="px-6 py-4 whitespace-nowrap">{user.Email}</td>
+                <td className="px-6 py-4 whitespace-nowrap">{user.email}</td>
                 <td className="px-6 py-4 whitespace-nowrap">
-                  {user.PhoneNumber}
+                  {user.phoneNumber}
                 </td>
-                <td className="px-6 py-4 whitespace-nowrap">{user.Role}</td>
+                <td className="px-6 py-4 whitespace-nowrap">{roleMap[user.role]}</td>
                 <td className="px-6 py-4 whitespace-nowrap">
                   <span
                     className={`px-2 py-1 rounded-full text-xs font-semibold ${
-                      user.IsActive === true
+                      user.isActive === true
                         ? "bg-green-100 text-green-800"
                         : "bg-red-100 text-red-800"
                     }`}
                   >
-                    {user.IsActive === true ? "Active" : "Block"}
+                    {user.isActive === true ? "Active" : "Block"}
                   </span>
                 </td>
                 {/* <td className="px-6 py-4 whitespace-nowrap">
-                  {format(user.CreatedAt, "MMM dd, yyyy")}
+                  {format(user.createdAt, "MMM dd, yyyy")}
                 </td> */}
                 <td className="px-6 py-4 whitespace-nowrap">
-                  {user.IsActive == true ? (
-                    <div>{format(user.UpdatedAt, "MMM dd, yyyy")}</div>
+                  {user.isActive == true ? (
+                    <div>{format(user.updatedAt, "MMM dd, yyyy")}</div>
                   ) : (
-                    <div>{format(user.DeletedAt, "MMM dd, yyyy")}</div>
+                    <div>{format(user.deletedAt, "MMM dd, yyyy")}</div>
                   )}
                 </td>
 
                 <td className="px-6 py-4 whitespace-nowrap">
-                {user.IsActive == true ? (
+                {user.isActive == true ? (
                   <div className="flex space-x-4">
                     <button
                       className="text-blue-600 hover:text-blue-800"

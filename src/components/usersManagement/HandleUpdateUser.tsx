@@ -16,25 +16,25 @@ export const UpdateUserModal: React.FC<UpdateUserModalProps> = ({
   setUsers,
 }) => {
   const [formData, setFormData] = useState({
-    Username: "",
-    PasswordHash: "",
-    Email: "",
-    PhoneNumber: "",
-    ImageUrl: "",
-    Role: "Staff",
-    IsActive: true,
+    username: "",
+    passwordHash: "",
+    email: "",
+    phoneNumber: "",
+    imageUrl: "",
+    role: "Staff",
+    isActive: true,
   });
 
   useEffect(() => {
     if (selectedUser) {
       setFormData({
-        Username: selectedUser.Username || "",
-        PasswordHash: selectedUser.PasswordHash || "",
-        Email: selectedUser.Email || "",
-        PhoneNumber: selectedUser.PhoneNumber || "",
-        ImageUrl: selectedUser.ImageUrl || "",
-        Role: selectedUser.Role || "Staff",
-        IsActive: selectedUser.IsActive ?? true,
+        username: selectedUser.username || "",
+        passwordHash: selectedUser.passwordHash || "",
+        email: selectedUser.email || "",
+        phoneNumber: selectedUser.phoneNumber || "",
+        imageUrl: selectedUser.imageUrl || "",
+        role: selectedUser.role || "Staff",
+        isActive: selectedUser.isActive ?? true,
       });
     }
   }, [selectedUser]);
@@ -87,7 +87,7 @@ export const UpdateUserModal: React.FC<UpdateUserModalProps> = ({
           }}
         >
           <div className="space-y-4">
-            {["Username", "PasswordHash", "Email", "PhoneNumber", "ImageUrl"].map(
+            {["username", "passwordHash", "email", "phoneNumber", "imageUrl"].map(
               (field) => (
                 <div key={field}>
                   <label className="block text-sm font-medium text-gray-700">
@@ -112,9 +112,9 @@ export const UpdateUserModal: React.FC<UpdateUserModalProps> = ({
               </label>
               <select
                 className="mt-2 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-500"
-                value={formData.Role}
+                value={formData.role}
                 onChange={(e) =>
-                  setFormData({ ...formData, Role: e.target.value })
+                  setFormData({ ...formData, role: e.target.value })
                 }
               >
                 <option value="Admin">Admin</option>
