@@ -15,7 +15,27 @@ const LoginComponent = () => {
   const [errors, setErrors] = useState<{ [key: string]: string }>({});
   const [showPassword, setShowPassword] = useState(false);
 
+  const validateLogin = () => {
+    const newErrors: { [key: string]: string } = {};
+    
+    const hasUsernameAndPassword = username && password;
+    const hasPhoneNumber = phone; // assume phoneNumber is a state variable too
 
+    if (!hasUsernameAndPassword && !hasPhoneNumber) {
+        newErrors.general = "Bạn phải nhập Tên đăng nhập & Mật khẩu hoặc Số điện thoại";
+    } else {
+        if (hasUsernameAndPassword) {
+            if (!username) newErrors.username = "Bạn chưa nhập Tên đăng nhập";
+            if (!password) newErrors.password = "Bạn chưa nhập Mật khẩu";
+        }
+        if (hasPhoneNumber) {
+            if (!phone) newErrors.phoneNumber = "Bạn chưa nhập Số điện thoại";
+        }
+    }
+
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
 
  return (
     <div className="bg-gradient-to-r from-gray-800 to-black">
@@ -156,7 +176,7 @@ const LoginComponent = () => {
                   onClick={() => setIsPhone(true)}
                   className="text-blue-400 hover:underline"
                 >
-                  Đăng ký
+                  Tại đây
                 </a>
               </>
             )}
