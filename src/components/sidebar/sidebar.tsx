@@ -8,10 +8,11 @@ export default function SideBar() {
   const pathname = usePathname();
 
   const links = [
-    { href: "/demoUI", label: "User Management" },
-    { href: "/demoUI/category", label: "Category Management" },
-    { href: "/demoUI", label: "Order Management" },
-    { href: "/demoUI/store", label: "Store Management" },
+    { href: "/dashboard", label: "User Management" },
+    { href: "/dashboard/product", label: "Quản lý sản phẩm" },
+    { href: "/dashboard/category", label: "Category Management" },
+    { href: "/dashboard/order", label: "Order Management" },
+    { href: "/dashboard/store", label: "Store Management" },
   ];
 
   return (
