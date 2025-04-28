@@ -1,95 +1,64 @@
 "use client";
 import { format } from "date-fns";
 import React, { useEffect, useMemo, useState } from "react";
-import { FiEdit2, FiEye, FiSearch, FiTrash2 } from "react-icons/fi";
+import { FiEdit2, FiEye, FiPlus, FiSearch, FiTrash2 } from "react-icons/fi";
 import { deleteCategory } from "./HandleDeleteCategory";
-
-// const transactions = [
-//   {
-//     name: "Bought PYPL",
-//     date: "Nov 23, 01:00 PM",
-//     price: "$2,567.88",
-//     category: "Finance",
-//     status: "Success",
-//   },
-//   {
-//     name: "Bought AAPL",
-//     date: "Nov 23, 01:00 PM",
-//     price: "$2,567.88",
-//     category: "Finance",
-//     status: "Pending",
-//   },
-//   {
-//     name: "Sell KKST",
-//     date: "Nov 23, 01:00 PM",
-//     price: "$2,567.88",
-//     category: "Finance",
-//     status: "Success",
-//   },
-//   {
-//     name: "Bought FB",
-//     date: "Nov 23, 01:00 PM",
-//     price: "$2,567.88",
-//     category: "Finance",
-//     status: "Success",
-//   },
-//   {
-//     name: "Sell AMZN",
-//     date: "Nov 23, 01:00 PM",
-//     price: "$2,567.88",
-//     category: "Finance",
-//     status: "Failed",
-//   },
-// ];
-
-// const statusStyles = {
-//   Success: "bg-green-200 text-green-600",
-//   Pending: "bg-orange-200 text-orange-600",
-//   Failed: "bg-red-200 text-red-600",
-// };
+import HandleCreateCategory from "./HandleCreateCategory";
 
 export interface Category {
-    id: string;
-    categoryName: string;
-    description: string;
-    products: any[] | null;
-    categoryExtraMappings: any[] | null;
-    isActive: boolean;
-    createdAt: Date; 
-    updatedAt: Date; 
-    deletedAt: Date | null;
-    createdBy: string | null;
-    updatedBy: string | null;
-  }
-  
+  id: string;
+  categoryName: string;
+  description: string;
+  products: any[] | null;
+  categoryExtraMappings: any[] | null;
+  isActive: boolean;
+  createdAt: Date;
+  updatedAt: Date;
+  deletedAt: Date | null;
+  createdBy: string | null;
+  updatedBy: string | null;
+}
+
 const CategoryTable = () => {
+  const [userInfo, setUserInfo] = useState<any>(null);
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(3);
   const [category, setCategory] = useState<Category[]>([]);
+  const [selectedCategory, setSelectedCategory] = useState<Category | null>(
+    null
+  );
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [showCreateModal, setShowCreateModal] = useState(false);
 
   useEffect(() => {
+    const storedUserInfo = localStorage.getItem("userInfo");
+    if (storedUserInfo) {
+      setUserInfo(JSON.parse(storedUserInfo));
+    }
+
     const fetchCategory = async () => {
       try {
-        const res = await fetch('https://milkteashop-fmcufmfkaja8d6ec.southeastasia-01.azurewebsites.net/Category/GetAll');
+        const res = await fetch(
+          "https://milkteashop-fmcufmfkaja8d6ec.southeastasia-01.azurewebsites.net/api/Category"
+        );
         const data = await res.json();
         setCategory(data);
       } catch (err) {
-        console.error('Error fetching categories:', err);
+        console.error("Error fetching categories:", err);
       }
     };
-  
+
     fetchCategory();
   }, []);
 
-  
   const filteredCategory = useMemo(() => {
     return category.filter((cate) => {
       const matchesSearch = cate.categoryName
         .toLowerCase()
         .includes(searchTerm.toLowerCase());
-      const matchesStatus = cate.isActive === true ? "Active" : "Block";
+        const matchesStatus = cate.isActive === true ? "Active" : "Block";    
       return matchesSearch && matchesStatus;
     });
   }, [category, searchTerm, statusFilter]);
@@ -105,9 +74,23 @@ const CategoryTable = () => {
     setCurrentPage(page);
   };
 
+  const handleDeleteClick = (category: Category) => {
+    setSelectedCategory(category);
+    setShowDeleteModal(true);
+  };
+
   return (
     <div className="mx-auto max-w-4xl p-6 bg-white rounded-lg shadow">
       <h2 className="text-2xl font-bold mb-4">Category Management</h2>
+      <div className="mb-6 bg-gray-100 p-4 rounded-lg">
+        <button
+          onClick={() => setShowCreateModal(true)}
+          className="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 flex items-center gap-2"
+        >
+          <FiPlus /> Create User
+        </button>
+      </div>
+
       <div className="flex flex-col md:flex-row gap-4 mb-6">
         <div className="relative flex-1">
           <FiSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
@@ -134,8 +117,10 @@ const CategoryTable = () => {
       <table className="min-w-full border-collapse border border-gray-200">
         <thead>
           <tr>
-          <th className="border border-gray-300 px-4 py-2 text-left">Name</th>
-            <th className="border border-gray-300 px-4 py-2 text-left">Description</th>
+            <th className="border border-gray-300 px-4 py-2 text-left">Name</th>
+            <th className="border border-gray-300 px-4 py-2 text-left">
+              Description
+            </th>
             <th className="border border-gray-300 px-4 py-2 text-left">Date</th>
             <th className="border border-gray-300 px-4 py-2 text-left">
               Product
@@ -151,7 +136,7 @@ const CategoryTable = () => {
         <tbody>
           {paginatedCategory.map((cate, index) => (
             <tr key={index}>
-                <td className="border border-gray-300 px-4 py-2">
+              <td className="border border-gray-300 px-4 py-2">
                 {cate.categoryName}
               </td>
               <td className="border border-gray-300 px-4 py-2">
@@ -164,15 +149,15 @@ const CategoryTable = () => {
                 {cate.products?.length}
               </td>
               <td className="border border-gray-300 px-4 py-2">
-              <span
-                    className={`px-2 py-1 rounded-full text-xs font-semibold ${
-                      cate.isActive === true
-                        ? "bg-green-100 text-green-800"
-                        : "bg-red-100 text-red-800"
-                    }`}
-                  >
-                    {cate.isActive === true ? "Active" : "Block"}
-                  </span>
+                <span
+                  className={`px-2 py-1 rounded-full text-xs font-semibold ${
+                    cate.isActive === true
+                      ? "bg-green-100 text-green-800"
+                      : "bg-red-100 text-red-800"
+                  }`}
+                >
+                  {cate.isActive === true ? "Active" : "Block"}
+                </span>
               </td>
               <td className={`border border-gray-300 px-4 py-2`}>
                 <div className="flex space-x-4">
@@ -193,7 +178,12 @@ const CategoryTable = () => {
                   <button
                     className="text-red-600 hover:text-red-800"
                     title="Delete Category"
-                    onClick={() => deleteCategory(cate.id, category, setCategory)}
+                    onClick={() => {
+                      const confirmDelete = window.confirm("Are you sure you want to delete this product?");
+                      if (confirmDelete) {
+                          deleteCategory(cate.id, category, setCategory);
+                      }
+                  }}
                   >
                     <FiTrash2 className="w-5 h-5" />
                   </button>
@@ -210,7 +200,7 @@ const CategoryTable = () => {
           onClick={() => handlePageChange(currentPage - 1)}
           disabled={currentPage === 1}
         >
-          Previous
+          Trang trước
         </button>
         <div className="flex space-x-2">
           {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
@@ -230,9 +220,19 @@ const CategoryTable = () => {
           onClick={() => handlePageChange(currentPage + 1)}
           disabled={currentPage === totalPages}
         >
-          Next
+          Trang tiếp theo
         </button>
       </div>
+
+      {showCreateModal && (
+        <HandleCreateCategory
+          userInfo={userInfo}
+          onCategoryCreated={(newCategory) =>
+            setCategory((prev) => [...prev, newCategory])
+          }
+          onClose={() => setShowCreateModal(false)}
+        />
+      )}
     </div>
   );
 };
