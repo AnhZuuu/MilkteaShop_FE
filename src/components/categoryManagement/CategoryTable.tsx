@@ -2,7 +2,11 @@
 import { format } from "date-fns";
 import React, { useEffect, useMemo, useState } from "react";
 import { FiEdit2, FiEye, FiPlus, FiSearch, FiTrash2 } from "react-icons/fi";
-import { deleteCategory } from "./HandleDeleteCategory";
+import {
+  ConfirmDeleteModal,
+  HandleDeleteCategory,
+  ValidationModal,
+} from "./HandleDeleteCategory";
 import HandleCreateCategory from "./HandleCreateCategory";
 
 export interface Category {
@@ -26,11 +30,13 @@ const CategoryTable = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(3);
   const [category, setCategory] = useState<Category[]>([]);
+
   const [selectedCategory, setSelectedCategory] = useState<Category | null>(
     null
   );
-  const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [showCreateModal, setShowCreateModal] = useState(false);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [showValidationModal, setShowValidationModal] = useState(false);
 
   useEffect(() => {
     const storedUserInfo = localStorage.getItem("userInfo");
@@ -60,8 +66,9 @@ const CategoryTable = () => {
         .includes(searchTerm.toLowerCase());
 
       const categoryStatus = cate.isActive === true ? "Active" : "Block";
-      const matchesStatus = statusFilter === "all" || categoryStatus === statusFilter;;
-     
+      const matchesStatus =
+        statusFilter === "all" || categoryStatus === statusFilter;
+
       return matchesSearch && matchesStatus;
     });
   }, [category, searchTerm, statusFilter]);
@@ -82,10 +89,23 @@ const CategoryTable = () => {
     setShowDeleteModal(true);
   };
 
+  const handleConfirmDelete = async () => {
+    if (selectedCategory) {
+      if (selectedCategory.products && selectedCategory.products.length > 0) {
+        setShowDeleteModal(false);
+        setShowValidationModal(true);
+        return;
+      } else {
+        await HandleDeleteCategory(selectedCategory.id, category, setCategory);
+      }
+      setShowDeleteModal(false);
+      setSelectedCategory(null);
+    }
+  };
+
   return (
     <div className="mx-auto max-w-4xl p-6 bg-white rounded-lg shadow">
       <h2 className="text-2xl font-bold mb-4">Quản lý phân loại sản phẩm</h2>
-
       <div className="flex flex-col md:flex-row gap-6 mb-6">
         <div className="relative md:basis-3/5 w-full">
           <FiSearch className="absolute left-2 top-1/2 transform -translate-y-1/2 text-gray-400" />
@@ -117,7 +137,6 @@ const CategoryTable = () => {
           </button>
         </div>
       </div>
-
       <table className="min-w-full border-collapse border border-gray-200">
         <thead>
           <tr>
@@ -184,12 +203,7 @@ const CategoryTable = () => {
                     className="text-red-600 hover:text-red-800"
                     title="Delete Category"
                     onClick={() => {
-                      const confirmDelete = window.confirm(
-                        "Are you sure you want to delete this product?"
-                      );
-                      if (confirmDelete) {
-                        deleteCategory(cate.id, category, setCategory);
-                      }
+                      handleDeleteClick(cate);
                     }}
                   >
                     <FiTrash2 className="w-5 h-5" />
@@ -200,7 +214,6 @@ const CategoryTable = () => {
           ))}
         </tbody>
       </table>
-
       <div className="mt-6 flex justify-between">
         <button
           className="px-4 py-2 border rounded-md disabled:opacity-50"
@@ -240,6 +253,21 @@ const CategoryTable = () => {
           onClose={() => setShowCreateModal(false)}
         />
       )}
+
+      {showDeleteModal && selectedCategory && (
+        <ConfirmDeleteModal
+          onClose={() => {
+            setShowDeleteModal(false);
+            setSelectedCategory(null);
+          }}
+          onConfirm={handleConfirmDelete}
+        />
+      )}
+
+      {showValidationModal  && selectedCategory && (
+        <ValidationModal onClose={() => setShowValidationModal(false)} />
+      )}
+
     </div>
   );
 };

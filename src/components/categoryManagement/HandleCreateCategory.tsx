@@ -31,32 +31,7 @@ const HandleCreateCategory: React.FC<HandleCreateCategoryProps> = ({
       description,
       createdBy: userInfo?.userId || "unknown",
     };
-
-    // try {
-    //   const res = await fetch(
-    //     "https://milkteashop-fmcufmfkaja8d6ec.southeastasia-01.azurewebsites.net/api/Category",
-    //     {
-    //       method: "POST",
-    //       headers: {
-    //         "Content-Type": "application/json",
-    //         // Authorization: `Bearer ${userInfo?.token}`,
-    //       },
-    //       body: JSON.stringify(newCategory),
-    //     }
-    //   );
-
-    //   if (!res.ok) throw new Error("Lỗi tạo category");
-
-    //   const created = await res.json();
-    //   onCategoryCreated(created); // Notify parent about the new category
-    //   console.log("Created category:", created);
-    // } catch (error) {
-    //   console.error("Lỗi xảy ra trong khi tạo category:", error);
-    // } finally {
-    //   onClose();
-    //   setCategoryName("");
-    //   setDescription("");
-    // }
+    
     try {
       const res = await fetch(
         "https://milkteashop-fmcufmfkaja8d6ec.southeastasia-01.azurewebsites.net/api/Category",
