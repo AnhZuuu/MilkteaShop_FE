@@ -58,7 +58,10 @@ const CategoryTable = () => {
       const matchesSearch = cate.categoryName
         .toLowerCase()
         .includes(searchTerm.toLowerCase());
-        const matchesStatus = cate.isActive === true ? "Active" : "Block";    
+
+      const categoryStatus = cate.isActive === true ? "Active" : "Block";
+      const matchesStatus = statusFilter === "all" || categoryStatus === statusFilter;;
+     
       return matchesSearch && matchesStatus;
     });
   }, [category, searchTerm, statusFilter]);
@@ -81,55 +84,57 @@ const CategoryTable = () => {
 
   return (
     <div className="mx-auto max-w-4xl p-6 bg-white rounded-lg shadow">
-      <h2 className="text-2xl font-bold mb-4">Category Management</h2>
-      <div className="mb-6 bg-gray-100 p-4 rounded-lg">
-        <button
-          onClick={() => setShowCreateModal(true)}
-          className="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 flex items-center gap-2"
-        >
-          <FiPlus /> Create User
-        </button>
-      </div>
+      <h2 className="text-2xl font-bold mb-4">Quản lý phân loại sản phẩm</h2>
 
-      <div className="flex flex-col md:flex-row gap-4 mb-6">
-        <div className="relative flex-1">
-          <FiSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
+      <div className="flex flex-col md:flex-row gap-6 mb-6">
+        <div className="relative md:basis-3/5 w-full">
+          <FiSearch className="absolute left-2 top-1/2 transform -translate-y-1/2 text-gray-400" />
           <input
             type="text"
-            placeholder="Search categories..."
+            placeholder="Tìm kiếm..."
             className="w-full pl-10 pr-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
           />
         </div>
-
-        <select
-          className="p-2 border rounded-lg"
-          value={statusFilter}
-          onChange={(e) => setStatusFilter(e.target.value)}
-        >
-          <option value="all">All Status</option>
-          <option value="Active">Active</option>
-          <option value="Block">Block</option>
-        </select>
+        <div className="md:basis-1/5 w-full">
+          <select
+            className="w-full p-2 border rounded-lg"
+            value={statusFilter}
+            onChange={(e) => setStatusFilter(e.target.value)}
+          >
+            <option value="all">Trạng thái</option>
+            <option value="Active">Active</option>
+            <option value="Block">Block</option>
+          </select>
+        </div>
+        <div className="md:basis-1/5 w-full">
+          <button
+            onClick={() => setShowCreateModal(true)}
+            className="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 flex items-center gap-2"
+          >
+            <FiPlus /> Tạo mới
+          </button>
+        </div>
       </div>
 
       <table className="min-w-full border-collapse border border-gray-200">
         <thead>
           <tr>
-            <th className="border border-gray-300 px-4 py-2 text-left">Name</th>
             <th className="border border-gray-300 px-4 py-2 text-left">
-              Description
-            </th>
-            <th className="border border-gray-300 px-4 py-2 text-left">Date</th>
-            <th className="border border-gray-300 px-4 py-2 text-left">
-              Product
+              Tên loại
             </th>
             <th className="border border-gray-300 px-4 py-2 text-left">
-              Status
+              Mô tả
             </th>
             <th className="border border-gray-300 px-4 py-2 text-left">
-              Actions
+              Ngày tạo
+            </th>
+            <th className="border border-gray-300 px-4 py-2 text-left">
+              Sản phẩm
+            </th>
+            <th className="border border-gray-300 px-4 py-2 text-left">
+              Trạng thái
             </th>
           </tr>
         </thead>
@@ -179,11 +184,13 @@ const CategoryTable = () => {
                     className="text-red-600 hover:text-red-800"
                     title="Delete Category"
                     onClick={() => {
-                      const confirmDelete = window.confirm("Are you sure you want to delete this product?");
+                      const confirmDelete = window.confirm(
+                        "Are you sure you want to delete this product?"
+                      );
                       if (confirmDelete) {
-                          deleteCategory(cate.id, category, setCategory);
+                        deleteCategory(cate.id, category, setCategory);
                       }
-                  }}
+                    }}
                   >
                     <FiTrash2 className="w-5 h-5" />
                   </button>
