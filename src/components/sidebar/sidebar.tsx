@@ -8,11 +8,11 @@ export default function SideBar() {
   const pathname = usePathname();
 
   const links = [
-    { href: "/dashboard", label: "User Management" },
+    { href: "/dashboard", label: "Quản lý người dùng" },
     { href: "/dashboard/product", label: "Quản lý sản phẩm" },
-    { href: "/dashboard/category", label: "Category Management" },
-    { href: "/dashboard/order", label: "Order Management" },
-    { href: "/dashboard/store", label: "Store Management" },
+    { href: "/dashboard/category", label: "Quản lý loại sản phẩm" },
+    { href: "/dashboard/order", label: "Quản lý đơn hàng" },
+    { href: "/dashboard/store", label: "Quản lý cửa hàng" },
   ];
 
   return (
