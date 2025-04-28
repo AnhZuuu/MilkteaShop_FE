@@ -1,20 +1,38 @@
 "use client";
 import React from 'react';
 
+// interface User {
+//     Id: string;
+//     Username: string;
+//     PasswordHash: string;
+//     Email: string;
+//     PhoneNumber: string;
+//     ImageUrl: string;
+//     Role: string;
+//     IsActive: boolean;
+//     CreatedAt: Date;
+//     UpdatedAt: Date;
+//     DeletedAt: Date;
+//     CreatedBy: string;
+//   }
+
+//new interface
 interface User {
-    Id: string;
-    Username: string;
-    PasswordHash: string;
-    Email: string;
-    PhoneNumber: string;
-    ImageUrl: string;
-    Role: string;
-    IsActive: boolean;
-    CreatedAt: Date;
-    UpdatedAt: Date;
-    DeletedAt: Date;
-    CreatedBy: string;
-  }
+  id: string;
+  username: string;
+  passwordHash: string;
+  email: string;
+  phoneNumber: string;
+  imageUrl: string;
+  role: number;
+  isActive: boolean;
+  orders : string[];
+  createdAt: Date;
+  updatedAt: Date;
+  deletedAt: Date;
+  createdBy: string;
+  updatedBy: string;
+}
 
 interface DeleteConfirmationModalProps {
   onClose: () => void;
@@ -27,20 +45,20 @@ const DeleteConfirmationModal = ({
 }: DeleteConfirmationModalProps) => (
   <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
     <div className="bg-white p-6 rounded-lg shadow-xl max-w-md w-full">
-      <h3 className="text-xl font-semibold mb-4">Confirm Delete</h3>
-      <p className="mb-6">Are you sure you want to delete this user?</p>
+      <h3 className="text-xl font-semibold mb-4">Xác nhận xóa tài khoản</h3>
+      <p className="mb-6">Bạn thật sự muốn xóa tài khoản này?</p>
       <div className="flex justify-end space-x-4">
         <button
           onClick={onClose}
           className="px-4 py-2 bg-gray-200 rounded-md hover:bg-gray-300"
         >
-          Cancel
+          Hủy
         </button>
         <button
           onClick={onConfirm}
           className="px-4 py-2 bg-red-500 text-white rounded-md hover:bg-red-600"
         >
-          Delete
+          Xác nhận
         </button>
       </div>
     </div>
@@ -64,7 +82,7 @@ const DeleteUserHandle = async (
 
   try {
     const response = await fetch(
-      `https://6804e5fd79cb28fb3f5c1a6d.mockapi.io/swp391/Users/${selectedUser.Id}`,
+      `https://milkteashop-fmcufmfkaja8d6ec.southeastasia-01.azurewebsites.net/User/${selectedUser.id}`,
       {
         method: 'PUT',
         headers: {
@@ -80,7 +98,7 @@ const DeleteUserHandle = async (
 
     // Update the local state with the updated user data
     const updatedUsers = users.map((user) =>
-      user.Id === selectedUser.Id ? updatedUser : user
+      user.id === selectedUser.id ? updatedUser : user
     );
     setUsers(updatedUsers);
 
