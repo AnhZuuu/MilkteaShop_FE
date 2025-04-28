@@ -8,6 +8,7 @@ import {
   ValidationModal,
 } from "./HandleDeleteCategory";
 import HandleCreateCategory from "./HandleCreateCategory";
+import HandleUpdateCategory from "./HandleUpdateCategory";
 
 export interface Category {
   id: string;
@@ -37,6 +38,8 @@ const CategoryTable = () => {
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [showValidationModal, setShowValidationModal] = useState(false);
+  const [showUpdateModal, setShowUpdateModal] = useState(false);
+  const [editingCategory, setEditingCategory] = useState<Category | null>(null);
 
   useEffect(() => {
     const storedUserInfo = localStorage.getItem("userInfo");
@@ -82,6 +85,17 @@ const CategoryTable = () => {
 
   const handlePageChange = (page: any) => {
     setCurrentPage(page);
+  };
+
+  const handleEditClick = (category: Category) => {
+    setEditingCategory(category);
+    setShowUpdateModal(true);
+  };
+
+  const handleCategoryUpdated = (updatedCategory: Category) => {
+    setCategory((prev) =>
+      prev.map((cat) => (cat.id === updatedCategory.id ? updatedCategory : cat))
+    );
   };
 
   const handleDeleteClick = (category: Category) => {
@@ -195,7 +209,7 @@ const CategoryTable = () => {
                   <button
                     className="text-green-600 hover:text-green-800"
                     title="Edit Category"
-                    // onClick={() => handleUpdateClick(user)}
+                    onClick={() => handleEditClick(cate)}
                   >
                     <FiEdit2 className="w-5 h-5" />
                   </button>
@@ -254,6 +268,15 @@ const CategoryTable = () => {
         />
       )}
 
+      {showUpdateModal && editingCategory && (
+        <HandleUpdateCategory
+          category={editingCategory}
+          userInfo={userInfo}
+          onClose={() => setShowUpdateModal(false)}
+          onCategoryUpdated={handleCategoryUpdated}
+        />
+      )}
+
       {showDeleteModal && selectedCategory && (
         <ConfirmDeleteModal
           onClose={() => {
@@ -264,10 +287,9 @@ const CategoryTable = () => {
         />
       )}
 
-      {showValidationModal  && selectedCategory && (
+      {showValidationModal && selectedCategory && (
         <ValidationModal onClose={() => setShowValidationModal(false)} />
       )}
-
     </div>
   );
 };
