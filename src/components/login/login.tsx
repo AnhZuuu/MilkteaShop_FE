@@ -1,11 +1,11 @@
-'use client'
+"use client";
 import Image from "next/image";
-import logo from '../../../public/logo.png'
+import logo from "../../../public/logo.png";
 import React, { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 
 const LoginComponent = () => {
-
-
+  const router = useRouter();
   const [isPhone, setIsPhone] = useState(false); // Track whether we are login with phone or username
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
@@ -15,19 +15,74 @@ const LoginComponent = () => {
   const [errors, setErrors] = useState<{ [key: string]: string }>({});
   const [showPassword, setShowPassword] = useState(false);
 
+  const validateLogin = () => {
+    const newErrors: { [key: string]: string } = {};
 
+    const hasUsernameAndPassword = username && password;
+    const hasPhoneNumber = phone; // assume phoneNumber is a state variable too
 
- return (
+    if (!hasUsernameAndPassword && !hasPhoneNumber) {
+      newErrors.general =
+        "Bạn phải nhập Tên đăng nhập & Mật khẩu hoặc Số điện thoại";
+    } else {
+      if (hasUsernameAndPassword) {
+        if (!username) newErrors.username = "Bạn chưa nhập Tên đăng nhập";
+        if (!password) newErrors.password = "Bạn chưa nhập Mật khẩu";
+      }
+      if (hasPhoneNumber) {
+        if (!phone) newErrors.phoneNumber = "Bạn chưa nhập Số điện thoại";
+      }
+    }
+
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
+  const handleLogin = async () => {
+    if (!validateLogin()) return;
+
+    try {
+      const response = await fetch(
+        "https://milkteashop-fmcufmfkaja8d6ec.southeastasia-01.azurewebsites.net/api/User/login",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            username,
+            password,
+            phoneNumber: "string",
+          }),
+        }
+      );
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        setErrors({ general: data.message || "Đăng nhập thất bại" });
+      } else {        
+        console.log("Login successful", data);
+        if(data.role === "Admin") {
+          router.push('/dashboard');
+        } 
+        else if(data.role === "Manager") {
+          router.push('/dashboard');
+        }
+        else {
+          router.push('/menu');
+        }
+      }
+    } catch (error) {
+      console.error("Login error:", error);
+      setErrors({ general: "Đã xảy ra lỗi. Vui lòng thử lại." });
+    }
+  };
+
+  return (
     <div className="bg-gradient-to-r from-gray-800 to-black">
-      
       <div className="min-h-screen flex items-center justify-center p-4">
-        {/* <div className="bg-[#383434] rounded-xl shadow-2xl w-full max-w-md p-8 transform transition-all duration-300"> */}
         <div className="bg-[#00001C] rounded-xl shadow-2xl w-full max-w-md p-8 transform transition-all duration-300">
-        <p className="text-gray-400">          
-          <a className="text-white hover:underline" href="/">
-            {/* <FaHome/> */}
-          </a>
-        </p>
           {isPhone ? (
             <>
               <div className="text-center">
@@ -127,8 +182,14 @@ const LoginComponent = () => {
                 <p className="w-full  mb-4 text-red-500">{errors.password}</p>
               )}
 
+              {errors.general && (
+                <p className="w-full text-center text-red-500 mt-2">
+                  {errors.general}
+                </p>
+              )}
+
               <button
-                // onClick={handleLogin}
+                onClick={handleLogin}
                 className="w-full mt-2 bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700 transition duration-200"
               >
                 Đăng nhập
@@ -156,7 +217,7 @@ const LoginComponent = () => {
                   onClick={() => setIsPhone(true)}
                   className="text-blue-400 hover:underline"
                 >
-                  Đăng ký
+                  Tại đây
                 </a>
               </>
             )}
@@ -164,7 +225,7 @@ const LoginComponent = () => {
         </div>
       </div>
     </div>
- )
-}
+  );
+};
 
 export default LoginComponent;

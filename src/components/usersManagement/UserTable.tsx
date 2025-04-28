@@ -55,7 +55,7 @@ const UserTable = () => {
       try {
         const response = await fetch(
           // "https://6804e5fd79cb28fb3f5c1a6d.mockapi.io/swp391/Users"
-          "https://milkteashop-fmcufmfkaja8d6ec.southeastasia-01.azurewebsites.net/User/GetAll"
+          "https://milkteashop-fmcufmfkaja8d6ec.southeastasia-01.azurewebsites.net/api/User"
         );
         const data: User[] = await response.json();
         console.log("Fetched DATA:", data);
