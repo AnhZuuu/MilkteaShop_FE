@@ -1,89 +1,68 @@
-// app/page.tsx
 "use client";
-import React, { useEffect, useState } from "react";
-import Sidebar from "@/components/menu/Sidebar";
-import ProductGrid from "@/components/menu/ProductGrid";
 import CartPanel from "@/components/menu/CartPanel";
+import ProductCard from "@/components/menu/ProductCard";
+import ProductGrid from "@/components/menu/ProductGrid";
+import Sidebar from "@/components/menu/Sidebar";
+import OrderSummary from "@/components/order/OrderSummary";
+import React, { useState } from "react";
 
+// You can move these types to separate files
 interface Product {
-  ProductName: string;       // Name of the product
-  CategoryId: string;        // ID of the category the product belongs to
-  Description: string;       // Description of the product
-  ImageUrl: string;          // URL of the product's image
-  Price: number;             // Price of the product
-  Size: string[];            // Available sizes for the product
-  IsActive: boolean;         // Status of the product (active/inactive)
-  CreatedAt: Date;         // Timestamp for when the product was created
-  UpdatedAt: Date;         // Timestamp for when the product was updated
-  DeletedAt: Date;         // Timestamp for when the product was deleted
-  CreatedBy: string;         // Creator of the product
-  UpdatedBy: string;         // User who last updated the product
-  Id: string;                // Unique ID of the product
+  id: string;
+  productName: string;
+  description: string;
+  categoryId: string;
+  category: any;
+  imageUrl: string;
+  productType: string | null;
+  productSizes: any[];
+  isActive: boolean;
+  price: number;
 }
 
-// interface Product {
-//   id: number;
-//   name: string;
-//   price: number;
-//   image: string;
-//   category: string;
-//   note?: string;
-// }
+interface CartItem extends Product {
+  quantity: number;
+  selectedSize: string;
+  toppings: Product[];
+  note?: string;
+}
 
-// const sampleProducts: Product[] = [
-//   { id: 1, name: 'Hoa quả sơn', price: 20000, image: '/fruit.jpg', category: 'an-vat' },
-//   { id: 2, name: 'Khô bò', price: 31000, image: '/beef.jpg', category: 'an-vat' },
-//   { id: 3, name: 'Khô gà', price: 26000, image: '/chicken.jpg', category: 'an-vat' },
-//   { id: 4, name: 'Snack tôm cay', price: 10000, image: '/snack.jpg', category: 'an-vat' },
-//   { id: 5, name: 'Coca Cola', price: 12000, image: '/coke.jpg', category: 'nuoc-uong' },
-//   { id: 6, name: 'Pepsi', price: 12000, image: '/pepsi.jpg', category: 'nuoc-uong' },
-// ];
-
-const MenuPage = () => {
-  interface CartItem extends Product {
-    // note: string;
-  }
-  const [userInfo, setUserInfo] = useState<any>(null);
+const MenuPage: React.FC = () => {
   const [selectedCategory, setSelectedCategory] = useState<string>("all");
-  const [cart, setCart] = useState<CartItem[]>([]);
   const [products, setProducts] = useState<Product[]>([]);
-  useEffect(() => {
-    const storedUserInfo = localStorage.getItem("userInfo");
-    if (storedUserInfo) {
-      setUserInfo(JSON.parse(storedUserInfo));
+  const [cart, setCart] = useState<CartItem[]>([]);
+  const [isCheckout, setIsCheckout] = useState(false); // Track if checkout is active
+
+  const fetchProducts = async () => {
+    try {
+      const res = await fetch(
+        "https://6801a85581c7e9fbcc430ea1.mockapi.io/swp391/Products"
+      );
+      const data = await res.json();
+      setProducts(
+        data.filter((p: Product) => p.isActive && p.productType !== "Extra")
+      );
+    } catch (err) {
+      console.error("Failed to load products", err);
     }
+  };
 
-    const fetchProducts = async () => {
-      try {
-        const response = await fetch("https://6801a85581c7e9fbcc430ea1.mockapi.io/swp391/Products"); // Replace with your API URL
-        const data = await response.json();
-        setProducts(data.filter((p : any) => p.ProductType !== "Extra"));
-      } catch (error) {
-        console.error("Error fetching products:", error);
-      }
-    };
-
+  React.useEffect(() => {
     fetchProducts();
   }, []);
 
-  const handleAddToCart = (product: Product) => {
-    // setCart((prev) => [...prev, { ...product, note: "" }]);
-    setCart((prev) => [...prev, { ...product }]);
-
+  const handleAddToCart = (item: CartItem) => {
+    setCart((prev) => [...prev, item]);
   };
-
-  // const handleNoteChange = (index: number, note: string) => {
-  //   setCart((prev) => {
-  //     const updated = [...prev];
-  //     updated[index].note = note;
-  //     return updated;
-  //   });
-  // };
 
   const handleRemoveFromCart = (index: number) => {
     setCart((prev) => prev.filter((_, i) => i !== index));
   };
-  
+
+  const handleConfirmOrder = (orderDetails: any) => {
+    console.log("Order confirmed:", orderDetails);
+    // You would send the order to the backend or handle it as per your flow
+  };
 
   return (
     <div className="flex h-screen bg-blue-200 text-white">
@@ -102,16 +81,29 @@ const MenuPage = () => {
           onAddToCart={handleAddToCart}
         />
       </div>
-      {cart.length > 0 && (
-        <div className="w-[20%] bg-gray-800 p-4 overflow-y-auto">
-          <CartPanel
-            cart={cart}
-            // onNoteChange={handleNoteChange}
-            onRemove={handleRemoveFromCart}
-          />
-        </div>
-      )}
+      {!isCheckout ? (
+        <CartPanel cart={cart} onRemove={handleRemoveFromCart} />
+      ) : (
+        <OrderSummary cart={cart} onConfirmOrder={handleConfirmOrder} />
+      )}     
     </div>
+    //   <div>
+    //     {!isCheckout ? (
+    //       <CartPanel cart={cart} onRemove={handleRemoveFromCart} />
+    //     ) : (
+    //       <OrderSummary cart={cart} onConfirmOrder={handleConfirmOrder} />
+    //     )}
+
+    //     {cart.length > 0 && !isCheckout && (
+    //       <button
+    //         onClick={() => setIsCheckout(true)}
+    //         className="mt-4 w-full bg-blue-600 hover:bg-blue-700 text-white py-2 rounded-xl font-medium"
+    //       >
+    //         Proceed to Checkout
+    //       </button>
+    //     )}
+    //   </div>
+    // </div>
   );
 };
 
