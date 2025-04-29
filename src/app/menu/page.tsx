@@ -1,12 +1,10 @@
 "use client";
 import CartPanel from "@/components/menu/CartPanel";
-import ProductCard from "@/components/menu/ProductCard";
 import ProductGrid from "@/components/menu/ProductGrid";
 import Sidebar from "@/components/menu/Sidebar";
 import OrderSummary from "@/components/order/OrderSummary";
 import React, { useState } from "react";
 
-// You can move these types to separate files
 interface Product {
   id: string;
   productName: string;
@@ -31,7 +29,7 @@ const MenuPage: React.FC = () => {
   const [selectedCategory, setSelectedCategory] = useState<string>("all");
   const [products, setProducts] = useState<Product[]>([]);
   const [cart, setCart] = useState<CartItem[]>([]);
-  const [isCheckout, setIsCheckout] = useState(false); // Track if checkout is active
+  const [isCheckout, setIsCheckout] = useState(false); 
 
   const fetchProducts = async () => {
     try {

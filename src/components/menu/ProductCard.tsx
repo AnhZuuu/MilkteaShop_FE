@@ -39,8 +39,6 @@ interface ToppingModalProps {
   setSelectedToppings: (toppings: Product[]) => void;
 }
 
-// ----------- COMPONENT -----------
-
 const ProductCard: React.FC<ProductCardProps> = ({ product, onAddToCart }) => {
   const [toppings, setToppings] = useState<Product[]>([]);
   const [showToppingModal, setShowToppingModal] = useState(false);
@@ -64,19 +62,25 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, onAddToCart }) => {
       try {
         const [productsRes, categoryMapRes] = await Promise.all([
           fetch("https://6801a85581c7e9fbcc430ea1.mockapi.io/swp391/Products"),
-          fetch("https://6804ddf079cb28fb3f5c082f.mockapi.io/swp391/CategoryExtraMappings"),
+          fetch(
+            "https://6804ddf079cb28fb3f5c082f.mockapi.io/swp391/CategoryExtraMappings"
+          ),
         ]);
 
         const products = await productsRes.json();
         const categoryExtraMapping = await categoryMapRes.json();
 
         const linkedExtraCategoryIds = categoryExtraMapping
-          .filter((mapping: CategoryExtraMappings) => mapping.MainCategoryId === product.categoryId)
+          .filter(
+            (mapping: CategoryExtraMappings) =>
+              mapping.MainCategoryId === product.categoryId
+          )
           .map((mapping: CategoryExtraMappings) => mapping.ExtraCategoryId);
 
         const extraProducts = products.filter(
           (p: Product & { productType?: string }) =>
-            p.productType === "Extra" && linkedExtraCategoryIds.includes(p.categoryId)
+            p.productType === "Extra" &&
+            linkedExtraCategoryIds.includes(p.categoryId)
         );
 
         setToppings(extraProducts);
@@ -87,8 +91,6 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, onAddToCart }) => {
 
     fetchProducts();
   }, [product.categoryId]);
-
-  // ----------- MODAL COMPONENT -----------
 
   const ToppingModal: React.FC<ToppingModalProps> = ({
     onClose,
@@ -105,14 +107,18 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, onAddToCart }) => {
               key={size}
               onClick={() => handleSizeClick(size)}
               className={`px-4 py-1 rounded ${
-                selectedSize === size ? "bg-blue-600 text-white" : "bg-gray-300 text-black"
+                selectedSize === size
+                  ? "bg-blue-600 text-white"
+                  : "bg-gray-300 text-black"
               }`}
             >
               {size}
             </button>
           ))}
         </div>
-        <h2 className="text-lg font-bold mb-4">Chọn topping cho: {product.productName}</h2>
+        <h2 className="text-lg font-bold mb-4">
+          Chọn topping cho: {product.productName}
+        </h2>
         <div className="space-y-2 max-h-60 overflow-y-auto">
           {toppings.map((topping) => (
             <div
@@ -131,7 +137,10 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, onAddToCart }) => {
           ))}
         </div>
         <div className="mt-4 flex justify-end gap-2">
-          <button className="px-4 py-1 bg-gray-300 rounded text-black" onClick={onClose}>
+          <button
+            className="px-4 py-1 bg-gray-300 rounded text-black"
+            onClick={onClose}
+          >
             Huỷ
           </button>
           <button
@@ -156,8 +165,6 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, onAddToCart }) => {
     </div>
   );
 
-  // ----------- MAIN CARD UI -----------
-
   return (
     <div className="bg-[#1c2c4a] p-4 rounded shadow-lg text-white">
       <img
@@ -167,7 +174,9 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, onAddToCart }) => {
       />
       <h3 className="text-lg mt-2 font-semibold">{product.productName}</h3>
       <h4 className="text-md text-gray-300">{product.description}</h4>
-      <p className="text-sm text-gray-400">{product.price.toLocaleString()} đ</p>
+      <p className="text-sm text-gray-400">
+        {product.price.toLocaleString()} đ
+      </p>
       <button
         className="mt-2 bg-blue-600 px-3 py-1 rounded hover:bg-blue-700 w-full"
         onClick={() => setShowToppingModal(true)}
