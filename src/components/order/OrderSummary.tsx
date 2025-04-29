@@ -1,30 +1,45 @@
 import React, { useState } from "react";
-import { Product } from "../productManagement/ProductTable";
-
 
 interface PaymentMethod {
   id: string;
   name: string;
 }
 
-interface CartItem {
+interface Product {
     id: string;
     productName: string;
+    description: string;
+    categoryId: string;
+    category: any;
     imageUrl: string;
+    productType: string | null;
+    productSizes: any[];
     price: number;
-    quantity: number;
-    selectedSize: string;
-    toppings: Product[];
-    note?: string;
+    isActive: boolean;
   }
+
+interface CartItem {
+  id: string;
+  productName: string;
+  imageUrl: string;
+  price: number;
+  quantity: number;
+  selectedSize: string;
+  toppings: Product[];
+  note?: string;
+}
 
 interface OrderSummaryProps {
   cart: CartItem[];
   onConfirmOrder: (order: any) => void; // Pass order details when confirmed
 }
 
-const OrderSummary: React.FC<OrderSummaryProps> = ({ cart, onConfirmOrder }) => {
-  const [selectedPaymentMethod, setSelectedPaymentMethod] = useState<PaymentMethod | null>(null);
+const OrderSummary: React.FC<OrderSummaryProps> = ({
+  cart,
+  onConfirmOrder,
+}) => {
+  const [selectedPaymentMethod, setSelectedPaymentMethod] =
+    useState<PaymentMethod | null>(null);
 
   const paymentMethods: PaymentMethod[] = [
     { id: "paypal", name: "PayPal" },
@@ -32,7 +47,10 @@ const OrderSummary: React.FC<OrderSummaryProps> = ({ cart, onConfirmOrder }) => 
   ];
 
   const totalPrice = cart.reduce((sum, item) => {
-    const toppingsPrice = item.toppings.reduce((tSum, topping : any) => tSum + topping.Price, 0);
+    const toppingsPrice = (item.toppings ?? []).reduce(
+      (tSum, topping: any) => tSum + topping.price,
+      0
+    );
     return sum + (item.price + toppingsPrice) * item.quantity;
   }, 0);
 
@@ -48,7 +66,19 @@ const OrderSummary: React.FC<OrderSummaryProps> = ({ cart, onConfirmOrder }) => 
       description: "Order description goes here...",
       paymentMethodId: selectedPaymentMethod.id,
       userId: "User123", // You would typically get this from the logged-in user
-      cartItems: cart,
+      cartItems: cart.map((item) => ({
+        id: item.id,
+        productName: item.productName,
+        quantity: item.quantity,
+        price: item.price,
+        selectedSize: item.selectedSize,
+        note: item.note ?? "",
+        toppings: item.toppings.map((topping: any) => ({
+          id: topping.Id,
+          name: topping.ProductName,
+          price: topping.Price,
+        })),
+      })),
     };
 
     onConfirmOrder(orderDetails);
@@ -61,9 +91,25 @@ const OrderSummary: React.FC<OrderSummaryProps> = ({ cart, onConfirmOrder }) => 
       <div>
         <h3 className="font-semibold">Items</h3>
         {cart.map((item, index) => (
-          <div key={index} className="flex items-center justify-between border-b border-gray-600 py-2">
-            <span>{item.productName}</span>
-            <span>{item.quantity} x {item.price.toLocaleString()}₫</span>
+          <div key={index} className="border-b border-gray-600 py-2">
+            <div className="flex items-center justify-between">
+              <span>
+                {item.productName} ({item.selectedSize})
+              </span>
+              <span>
+                {item.quantity} x {item.price.toLocaleString()}₫
+              </span>
+            </div>
+            {item.toppings.length > 0 && (
+              <div className="ml-4 mt-1 text-sm text-gray-300">
+                <p className="font-medium">Toppings:</p>
+                {item.toppings.map((topping, i : any) => (
+                  <p key={i}>
+                    - {topping.productName} ({topping.price.toLocaleString()}₫)
+                  </p>
+                ))}
+              </div>
+            )}
           </div>
         ))}
       </div>
@@ -87,7 +133,9 @@ const OrderSummary: React.FC<OrderSummaryProps> = ({ cart, onConfirmOrder }) => 
       </div>
 
       <div className="mt-6 border-t border-gray-600 pt-4 text-sm">
-        <p className="font-bold text-white">Total: {totalPrice.toLocaleString()}₫</p>
+        <p className="font-bold text-white">
+          Total: {totalPrice.toLocaleString()}₫
+        </p>
         <button
           onClick={handleConfirmOrder}
           className="w-full bg-green-600 hover:bg-green-700 text-white py-2 rounded-xl mt-4"

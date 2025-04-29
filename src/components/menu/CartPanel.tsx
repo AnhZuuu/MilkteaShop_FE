@@ -16,10 +16,13 @@ interface CartItem {
 interface CartPanelProps {
   cart: CartItem[];
   onRemove: (index: number) => void;
+  isCheckout: boolean;
+  setIsCheckout: (value: boolean) => void;
 }
 
-const CartPanel: React.FC<CartPanelProps> = ({ cart, onRemove }) => {
-  const [isCheckout, setIsCheckout] = useState(false); // Track if checkout is active
+// const CartPanel: React.FC<CartPanelProps> = ({ cart, onRemove }) => {
+  const CartPanel: React.FC<CartPanelProps> = ({ cart, onRemove, isCheckout, setIsCheckout }) => {
+
   const totalItems = cart.length;
   const totalPrice = cart.reduce((sum, item) => {
     const toppingsPrice = (item.toppings ?? []).reduce(
@@ -100,8 +103,7 @@ const CartPanel: React.FC<CartPanelProps> = ({ cart, onRemove }) => {
             </button>
           )}
           <button
-            className="mt-4 w-full bg-green-600 hover:bg-green-700 text-white py-2 rounded-xl font-medium"
-            onClick={() => setIsCheckout(false)}
+            className="mt-4 w-full bg-green-600 hover:bg-green-700 text-white py-2 rounded-xl font-medium"        
           >
             Tiếp tục đặt món
           </button>

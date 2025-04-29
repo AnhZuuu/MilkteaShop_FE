@@ -82,28 +82,21 @@ const MenuPage: React.FC = () => {
         />
       </div>
       {!isCheckout ? (
-        <CartPanel cart={cart} onRemove={handleRemoveFromCart} />
+        // <CartPanel cart={cart} onRemove={handleRemoveFromCart} />
+        <CartPanel
+        cart={cart}
+        onRemove={(index) => {
+          const newCart = [...cart];
+          newCart.splice(index, 1);
+          setCart(newCart);
+        }}
+        isCheckout={isCheckout}
+        setIsCheckout={setIsCheckout} // ✅ Pass setter
+      />
       ) : (
         <OrderSummary cart={cart} onConfirmOrder={handleConfirmOrder} />
       )}     
     </div>
-    //   <div>
-    //     {!isCheckout ? (
-    //       <CartPanel cart={cart} onRemove={handleRemoveFromCart} />
-    //     ) : (
-    //       <OrderSummary cart={cart} onConfirmOrder={handleConfirmOrder} />
-    //     )}
-
-    //     {cart.length > 0 && !isCheckout && (
-    //       <button
-    //         onClick={() => setIsCheckout(true)}
-    //         className="mt-4 w-full bg-blue-600 hover:bg-blue-700 text-white py-2 rounded-xl font-medium"
-    //       >
-    //         Proceed to Checkout
-    //       </button>
-    //     )}
-    //   </div>
-    // </div>
   );
 };
 
