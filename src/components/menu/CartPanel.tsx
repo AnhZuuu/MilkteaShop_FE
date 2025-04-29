@@ -20,8 +20,7 @@ interface CartPanelProps {
   setIsCheckout: (value: boolean) => void;
 }
 
-// const CartPanel: React.FC<CartPanelProps> = ({ cart, onRemove }) => {
-  const CartPanel: React.FC<CartPanelProps> = ({ cart, onRemove, isCheckout, setIsCheckout }) => {
+const CartPanel: React.FC<CartPanelProps> = ({ cart, onRemove, isCheckout, setIsCheckout }) => {
 
   const totalItems = cart.length;
   const totalPrice = cart.reduce((sum, item) => {
