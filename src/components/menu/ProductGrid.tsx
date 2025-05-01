@@ -37,7 +37,7 @@ const ProductGrid: React.FC<ProductGridProps> = ({ category, products, onAddToCa
   const filtered = category === "all" ? products : products.filter(p => p.categoryId === category);
 
   return (
-    <div className="grid grid-cols-3 gap-4">
+    <div className="grid grid-cols-3 gap-4 ">
       {filtered.map((product) => (
         <ProductCard key={product.id} product={product} onAddToCart={onAddToCart} />
       ))}
