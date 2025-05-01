@@ -13,6 +13,8 @@ export default function SideBar() {
     { href: "/dashboard/category", label: "Quản lý loại sản phẩm" },
     { href: "/dashboard/order", label: "Quản lý đơn hàng" },
     { href: "/dashboard/store", label: "Quản lý cửa hàng" },
+    { href: "/dashboard/mapping", label: "Quản lý Mapping" },
+    { href: "/dashboard/mapping2", label: "Quản lý Mapping2" },
   ];
 
   return (
