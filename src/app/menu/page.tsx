@@ -71,7 +71,7 @@ const MenuPage: React.FC = () => {
       <div
         className={`transition-all duration-300 ${
           cart.length ? "w-[65%]" : "w-[85%]"
-        } p-4 overflow-y-auto`}
+        } p-4 overflow-y-auto scrollbar-hidden`}
       >
         <ProductGrid
           category={selectedCategory}
