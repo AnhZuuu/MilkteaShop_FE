@@ -80,7 +80,7 @@ const MenuPage: React.FC = () => {
         />
       </div>
       {!isCheckout ? (
-        // <CartPanel cart={cart} onRemove={handleRemoveFromCart} />
+        
         <CartPanel
         cart={cart}
         onRemove={(index) => {
@@ -89,7 +89,7 @@ const MenuPage: React.FC = () => {
           setCart(newCart);
         }}
         isCheckout={isCheckout}
-        setIsCheckout={setIsCheckout} // ✅ Pass setter
+        setIsCheckout={setIsCheckout} 
       />
       ) : (
         <OrderSummary cart={cart} onConfirmOrder={handleConfirmOrder} />
