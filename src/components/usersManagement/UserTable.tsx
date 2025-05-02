@@ -16,7 +16,7 @@ interface User {
   imageUrl: string;
   role: number;
   isActive: boolean;
-  orders : string[];
+  orders: string[];
   createdAt: Date;
   updatedAt: Date;
   deletedAt: Date;
@@ -71,11 +71,10 @@ const UserTable = () => {
   const filteredUsers = useMemo(() => {
     return users.filter((user) => {
       const matchesSearch =
-        user.username.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        user.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        roleMap[user.role].toLowerCase().includes(searchTerm.toLowerCase());
+        user.username.toLowerCase().includes(searchTerm.toLowerCase());
 
-      const matchesRole = roleFilter === "all" || user.role === parseInt(roleFilter);
+      const matchesRole =
+        roleFilter === "all" || user.role === parseInt(roleFilter);
 
       const userStatus = user.isActive === true ? "Active" : "Block";
       const matchesStatus =
@@ -109,12 +108,12 @@ const UserTable = () => {
   return (
     <div className="container mx-auto px-4 py-8">
       <div className="mb-8">
-        <h1 className="text-2xl font-bold mb-6">User Management</h1>
+        <h1 className="text-2xl font-bold mb-6">Quản lý người dùng</h1>
         <button
           onClick={() => setShowCreateModal(true)}
           className="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 flex items-center gap-2"
         >
-          <FiPlus /> Create User
+          <FiPlus /> Tạo mới
         </button>
         <div className="flex flex-col md:flex-row gap-4 mb-6">
           <div className="relative flex-1">
@@ -133,7 +132,7 @@ const UserTable = () => {
             value={roleFilter}
             onChange={(e) => setRoleFilter(e.target.value)}
           >
-            <option value="all">All Roles</option>
+            <option value="all">Tất cả</option>
             <option value="0">Admin</option>
             <option value="1">Manager</option>
             <option value="2">Staff</option>
@@ -144,9 +143,9 @@ const UserTable = () => {
             value={statusFilter}
             onChange={(e) => setStatusFilter(e.target.value)}
           >
-            <option value="all">All Status</option>
-            <option value="Active">Active</option>
-            <option value="Block">Block</option>
+            <option value="all">Trạng thái</option>
+            <option value="Active">Hoạt động</option>
+            <option value="Block">Chặn</option>
           </select>
         </div>
       </div>
@@ -156,15 +155,15 @@ const UserTable = () => {
           <thead>
             <tr className="bg-gray-50">
               {[
-                { key: "Id", label: "ID" },
-                { key: "Username", label: "Username" },
+                { key: "Image", label: "Hình ảnh" },
+                { key: "Username", label: "Tên người dùng" },
                 { key: "Email", label: "Email" },
-                { key: "PhoneNumber", label: "Phone Number" },
-                { key: "Role", label: "Role" },
-                { key: "Status", label: "Status" },
+                { key: "PhoneNumber", label: "Số điện thoại" },
+                { key: "Role", label: "Vai trò" },
+                { key: "Status", label: "Trạng thái" },
                 // { key: "CreatedAt", label: "Created Date" },
-                { key: "UpdatedAt", label: "Updated Date" },
-                { key: "actions", label: "Actions" },
+                { key: "UpdatedAt", label: "Ngày cập nhập" },
+                // { key: "actions", label: "Actions" },
               ].map((column) => (
                 <th
                   key={column.key}
@@ -187,26 +186,26 @@ const UserTable = () => {
                   idx % 2 === 0 ? "bg-white" : "bg-gray-50"
                 }`}
               >
-                <td className="px-6 py-4 whitespace-nowrap">{user.id}</td>
                 <td className="px-6 py-4 whitespace-nowrap">
-                  <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 overflow-hidden rounded-full">
-                      <img
-                        width={40}
-                        height={40}
-                        src={user.imageUrl}
-                        alt={user.username}
-                      />
-                    </div>
-
-                    {user.username}
+                  <div className="w-10 h-10 overflow-hidden rounded-full">
+                    <img
+                      width={40}
+                      height={40}
+                      src={user.imageUrl}
+                      alt={user.username}
+                    />
                   </div>
+                </td>
+                <td className="px-6 py-4 whitespace-nowrap">
+                  <div className="flex items-center gap-3">{user.username}</div>
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap">{user.email}</td>
                 <td className="px-6 py-4 whitespace-nowrap">
                   {user.phoneNumber}
                 </td>
-                <td className="px-6 py-4 whitespace-nowrap">{roleMap[user.role]}</td>
+                <td className="px-6 py-4 whitespace-nowrap">
+                  {roleMap[user.role]}
+                </td>
                 <td className="px-6 py-4 whitespace-nowrap">
                   <span
                     className={`px-2 py-1 rounded-full text-xs font-semibold ${
@@ -230,39 +229,39 @@ const UserTable = () => {
                 </td>
 
                 <td className="px-6 py-4 whitespace-nowrap">
-                {user.isActive == true ? (
-                  <div className="flex space-x-4">
-                    <button
-                      className="text-blue-600 hover:text-blue-800"
-                      title="View Details"
-                    >
-                      <FiEye className="w-5 h-5" />
-                    </button>
-                    
+                  {user.isActive == true ? (
+                    <div className="flex space-x-4">
                       <button
-                      className="text-green-600 hover:text-green-800"
-                      title="Edit User"
-                      onClick={() => handleUpdateClick(user)}
-                    >
-                      <FiEdit2 className="w-5 h-5" />
-                    </button>
-                    <button
-                      className="text-red-600 hover:text-red-800"
-                      title="Delete User"
-                      onClick={() => handleDeleteClick(user)}
-                    >
-                      <FiTrash2 className="w-5 h-5" />
-                    </button>                               
-                  </div>
+                        className="text-blue-600 hover:text-blue-800"
+                        title="View Details"
+                      >
+                        <FiEye className="w-5 h-5" />
+                      </button>
+
+                      <button
+                        className="text-green-600 hover:text-green-800"
+                        title="Edit User"
+                        onClick={() => handleUpdateClick(user)}
+                      >
+                        <FiEdit2 className="w-5 h-5" />
+                      </button>
+                      <button
+                        className="text-red-600 hover:text-red-800"
+                        title="Delete User"
+                        onClick={() => handleDeleteClick(user)}
+                      >
+                        <FiTrash2 className="w-5 h-5" />
+                      </button>
+                    </div>
                   ) : (
-                  <div className="flex space-x-4">
-                    <button
-                      className="text-blue-600 hover:text-blue-800"
-                      title="View Details"
-                    >
-                      <FiEye className="w-5 h-5" />
-                    </button>
-                  </div>
+                    <div className="flex space-x-4">
+                      <button
+                        className="text-blue-600 hover:text-blue-800"
+                        title="View Details"
+                      >
+                        <FiEye className="w-5 h-5" />
+                      </button>
+                    </div>
                   )}
                 </td>
               </tr>
@@ -274,9 +273,9 @@ const UserTable = () => {
       <div className="mt-6 flex flex-col sm:flex-row items-center justify-between">
         <div className="flex items-center space-x-2 mb-4 sm:mb-0">
           <span className="text-sm text-gray-700">
-            Showing {(currentPage - 1) * pageSize + 1} to{" "}
-            {Math.min(currentPage * pageSize, filteredUsers.length)} of{" "}
-            {filteredUsers.length} entries
+            Hiển thị {(currentPage - 1) * pageSize + 1} đến {" "}
+            {Math.min(currentPage * pageSize, filteredUsers.length)} của {" "}
+            {filteredUsers.length} mục
           </span>
           <select
             className="border rounded-md p-1"
@@ -285,7 +284,7 @@ const UserTable = () => {
           >
             {[5, 10, 25, 50].map((size) => (
               <option key={size} value={size}>
-                {size} per page
+                {size} mục
               </option>
             ))}
           </select>
@@ -297,7 +296,7 @@ const UserTable = () => {
             onClick={() => handlePageChange(currentPage - 1)}
             disabled={currentPage === 1}
           >
-            Previous
+            Trước
           </button>
           {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
             <button
@@ -315,7 +314,7 @@ const UserTable = () => {
             onClick={() => handlePageChange(currentPage + 1)}
             disabled={currentPage === totalPages}
           >
-            Next
+            Sau
           </button>
         </div>
       </div>
