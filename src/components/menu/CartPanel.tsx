@@ -98,7 +98,7 @@ const CartPanel: React.FC<CartPanelProps> = ({ cart, onRemove, isCheckout, setIs
               onClick={() => setIsCheckout(true)}
               className="mt-4 w-full bg-blue-600 hover:bg-blue-700 text-white py-2 rounded-xl font-medium"
             >
-              Proceed to Checkout
+              Thanh toán
             </button>
           )}
           <button
