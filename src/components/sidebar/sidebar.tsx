@@ -15,13 +15,14 @@ export default function SideBar() {
     { href: "/dashboard/store", label: "Quản lý cửa hàng" },
     { href: "/dashboard/mapping", label: "Quản lý Mapping" },
     { href: "/dashboard/mapping2", label: "Quản lý Mapping2" },
+    { href: "/login", label: "Đăng xuất" },
   ];
 
   return (
     <div className="h-full flex flex-col gap-6 p-4 bg-gray-100">
       {/* Logo */}
       <div className="text-2xl font-bold text-center">
-        MyAppLogo
+        Hệ thống đặt trà sữa
       </div>
 
       {/* Navigation Links */}
