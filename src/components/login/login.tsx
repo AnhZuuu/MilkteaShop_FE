@@ -63,6 +63,9 @@ const LoginComponent = () => {
         setErrors({ general: data.message || "Đăng nhập thất bại" });
       } else {        
         console.log("Login successful", data);
+        
+        localStorage.setItem("user", JSON.stringify(data));
+
         if(data.role === "Admin") {
           router.push('/dashboard');
         } 

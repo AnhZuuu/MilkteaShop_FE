@@ -1,7 +1,8 @@
 "use client";
-import { FiEdit2, FiEye, FiSearch, FiTrash2 } from "react-icons/fi";
+import { FiEdit2, FiEye, FiPlus, FiSearch, FiTrash2 } from "react-icons/fi";
 import React, { useEffect, useMemo, useState } from "react";
 import { deleteProduct } from "./HandleDeleteProduct";
+import HandleCreateProduct from "./HandleCreateProduct";
 
 export interface Product {
     id: string;
@@ -23,13 +24,21 @@ export interface Category {
 const ProductTable = () => {
     const [products, setProducts] = useState<Product[]>([]);
     const [categories, setCategories] = useState<Category[]>([]);
+    const [userInfo, setUserInfo] = useState<any>(null);
+    const [showCreateModal, setShowCreateModal] = useState(false);
     const [searchTerm, setSearchTerm] = useState("");
     const [statusFilter, setStatusFilter] = useState("all");
     const [categoryFilter, setCategoryFilter] = useState<string | null>(null);
     const [currentPage, setCurrentPage] = useState(1);
     const pageSize = 5;
 
+
+
     useEffect(() => {
+        const storedUserInfo = localStorage.getItem("userInfo");
+        if (storedUserInfo) {
+            setUserInfo(JSON.parse(storedUserInfo));
+        }
         const fetchProducts = async () => {
             try {
                 const res = await fetch('https://milkteashop-fmcufmfkaja8d6ec.southeastasia-01.azurewebsites.net/api/Product');
@@ -92,39 +101,68 @@ const ProductTable = () => {
 
     return (
         <div className="mx-auto max-w-5xl p-6 bg-white rounded-lg shadow">
-            <h2 className="text-2xl font-bold mb-4">Product Management</h2>
+            <h2 className="text-2xl font-bold mb-4">Quản lý sản phẩm</h2>
 
             <div className="flex flex-col md:flex-row gap-4 mb-6">
-                <div className="relative flex-1">
-                    <FiSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
-                    <input
-                        type="text"
-                        placeholder="Search products..."
-                        className="w-full pl-10 pr-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                        value={searchTerm}
-                        onChange={(e) => setSearchTerm(e.target.value)}
-                    />
+                <div className="relative md:basis-2/5 w-full">
+                    <div className="relative flex-1">
+                        <FiSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
+                        <input
+                            type="text"
+                            placeholder="Search products..."
+                            className="w-full pl-10 pr-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            value={searchTerm}
+                            onChange={(e) => setSearchTerm(e.target.value)}
+                        />
+                    </div>
                 </div>
-
-                <select
-                    className="p-2 border rounded-lg"
-                    value={statusFilter}
-                    onChange={(e) => setStatusFilter(e.target.value)}
-                >
-                    <option value="all">All Status</option>
-                    <option value="Active">Active</option>
-                    <option value="Block">Block</option>
-                </select>
+                <div className="md:basis-1/5 w-full">
+                    <select
+                        className="p-2 border rounded-lg"
+                        value={statusFilter}
+                        onChange={(e) => setStatusFilter(e.target.value)}
+                    >
+                        <option value="all">Trạng thái</option>
+                        <option value="Active">Còn hàng</option>
+                        <option value="Block">Tạm hết</option>
+                    </select>
+                </div>
+                <div className="md:basis-1/5 w-full">
+                    <select
+                        className="p-2 border rounded-lg"
+                        value={categoryFilter || ""}
+                        onChange={(e) => {
+                            const value = e.target.value;
+                            setCategoryFilter(value === "" ? null : value);
+                            setCurrentPage(1); // reset to page 1 when changing filter
+                        }}
+                    >
+                        <option value="">Tất cả loại sản phẩm</option>
+                        {categories.map((category) => (
+                            <option key={category.id} value={category.id}>
+                                {category.categoryName}
+                            </option>
+                        ))}
+                    </select>
+                </div>
+                <div className="md:basis-1/5 w-full">
+                    <button
+                        onClick={() => setShowCreateModal(true)}
+                        className="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 flex items-center gap-2"
+                    >
+                        <FiPlus /> Tạo mới
+                    </button>
+                </div>
             </div>
 
             {categoryFilter && (
                 <div className="mb-4">
-                    <span className="text-gray-700">Filtering by Category: </span>
+                    <span className="text-gray-700">Lọc theo loại sản phẩm: </span>
                     <button
                         className="text-blue-600 hover:underline"
                         onClick={clearCategoryFilter}
                     >
-                        {getCategoryName(categoryFilter)} (Clear)
+                        {getCategoryName(categoryFilter)} (bấm để xóa)
                     </button>
                 </div>
             )}
@@ -132,11 +170,11 @@ const ProductTable = () => {
             <table className="min-w-full border-collapse border border-gray-200">
                 <thead>
                     <tr>
-                        <th className="border border-gray-300 px-4 py-2 text-left">Product Name</th>
-                        <th className="border border-gray-300 px-4 py-2 text-left">Description</th>
-                        <th className="border border-gray-300 px-4 py-2 text-left">Category</th>
-                        <th className="border border-gray-300 px-4 py-2 text-left">Status</th>
-                        <th className="border border-gray-300 px-4 py-2 text-left">Actions</th>
+                        <th className="border border-gray-300 px-4 py-2 text-left">Tên</th>
+                        <th className="border border-gray-300 px-4 py-2 text-left">Mô tả</th>
+                        <th className="border border-gray-300 px-4 py-2 text-left">Loại sản phẩm</th>
+                        <th className="border border-gray-300 px-4 py-2 text-left">Trạng thái</th>
+                        <th className="border border-gray-300 px-4 py-2 text-left"></th>
                     </tr>
                 </thead>
                 <tbody>
@@ -157,7 +195,7 @@ const ProductTable = () => {
                                     className={`px-2 py-1 rounded-full text-xs font-semibold ${product.isActive ? "bg-green-100 text-green-800" : "bg-red-100 text-red-800"
                                         }`}
                                 >
-                                    {product.isActive ? "Active" : "Block"}
+                                    {product.isActive ? "Còn hàng" : "Tạm hết"}
                                 </span>
                             </td>
                             <td className="border border-gray-300 px-4 py-2">
@@ -194,7 +232,7 @@ const ProductTable = () => {
                     onClick={() => setCurrentPage((prev) => prev - 1)}
                     disabled={currentPage === 1}
                 >
-                    Previous
+                    Quay lại
                 </button>
                 <div className="flex space-x-2">
                     {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
@@ -213,9 +251,19 @@ const ProductTable = () => {
                     onClick={() => setCurrentPage((prev) => prev + 1)}
                     disabled={currentPage === totalPages}
                 >
-                    Next
+                    Trang kế
                 </button>
             </div>
+            {showCreateModal && (
+                <HandleCreateProduct
+                    userInfo={userInfo}
+                    onProductCreated={(newProduct) =>
+                        setProducts((prev) => [...prev, newProduct])
+                    }
+                    onClose={() => setShowCreateModal(false)}
+                />
+            )}
+
         </div>
     );
 };
