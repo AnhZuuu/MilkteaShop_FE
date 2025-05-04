@@ -125,8 +125,8 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, onAddToCart }) => {
               key={topping.id}
               className={`cursor-pointer p-2 rounded ${
                 selectedToppings.some((t) => t.id === topping.id)
-                  ? "bg-green-200"
-                  : "bg-gray-200"
+                  ? "bg-blue-600 text-white"
+                  : "bg-gray-200 text-black"
               }`}
               onClick={() => toggleTopping(topping)}
             >

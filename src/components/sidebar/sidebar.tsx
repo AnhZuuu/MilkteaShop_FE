@@ -33,26 +33,27 @@ export default function SideBar() {
   }, []);
 
   const links = [
-    { href: "/dashboard", label: "Quản lý người dùng" },
-    { href: "/dashboard/product", label: "Quản lý sản phẩm" },
-    { href: "/dashboard/category", label: "Quản lý loại sản phẩm" },
-    { href: "/dashboard/order", label: "Quản lý đơn hàng" },
-    { href: "/dashboard/store", label: "Quản lý cửa hàng" },
-    { href: "/dashboard/mapping", label: "Quản lý Mapping" },
-    { href: "/dashboard/mapping2", label: "Quản lý Mapping2" },
-    { href: "/dashboard/mapping2", label: "Quản lý doanh thu (chưa có)" }
+    { href: "/dashboard", label: "Người dùng" },
+    { href: "/dashboard/category", label: "Loại sản phẩm" },
+    { href: "/dashboard/product", label: "Sản phẩm" },
+    { href: "/dashboard/productSize", label: "Giá sản phẩm" },
+    { href: "/dashboard/order", label: "Đơn hàng" },
+    { href: "/dashboard/store", label: "Cửa hàng" },
+    { href: "/dashboard/mapping", label: "Mapping" },
+    { href: "/dashboard/mapping2", label: "Mapping2" },
+    { href: "/dashboard/mapping2", label: "Doanh thu (chưa có)" }
 
   ];
 
   const adminLinks = [
-    { href: "/dashboard", label: "Quản lý người dùng" },
+    { href: "/dashboard", label: "Người dùng" },
     // { href: "/dashboard/product", label: "Quản lý sản phẩm" },
     // { href: "/dashboard/category", label: "Quản lý loại sản phẩm" },
     // { href: "/dashboard/order", label: "Quản lý đơn hàng" },
-    { href: "/dashboard/store", label: "Quản lý cửa hàng" },
+    { href: "/dashboard/store", label: "Cửa hàng" },
     // { href: "/dashboard/mapping", label: "Quản lý Mapping" },
     // { href: "/dashboard/mapping2", label: "Quản lý Mapping2" },
-    { href: "/dashboard/mapping2", label: "Quản lý doanh thu (chưa có)" }
+    { href: "/dashboard/mapping2", label: "Doanh thu (chưa có)" }
 
   ];
 
