@@ -1,3 +1,4 @@
+import { useRouter } from "next/navigation";
 import React, { useState } from "react";
 
 interface PaymentMethod {
@@ -31,7 +32,7 @@ interface CartItem {
 
 interface OrderSummaryProps {
   cart: CartItem[];
-  onConfirmOrder: (order: any) => void; 
+  onConfirmOrder: (order: any) => void;
 }
 
 const OrderSummary: React.FC<OrderSummaryProps> = ({
@@ -42,6 +43,7 @@ const OrderSummary: React.FC<OrderSummaryProps> = ({
     useState<PaymentMethod | null>(null);
   const [showConfirmPopup, setShowConfirmPopup] = useState(false);
   const [orderStatus, setOrderStatus] = useState<string | null>(null);
+  const router = useRouter();
 
   const paymentMethods: PaymentMethod[] = [
     { id: "momo", name: "Momo" },
@@ -64,30 +66,37 @@ const OrderSummary: React.FC<OrderSummaryProps> = ({
 
     if (selectedPaymentMethod.id === "momo") {
       setShowConfirmPopup(true);
-      return; 
+      return;
     }
 
     finalizeOrder();
   };
 
+  const handleCorfirmOrderByMomo = (fromPopup: boolean = false) => {
+    setShowConfirmPopup(false);
+    finalizeOrder();
+  }
+
   const finalizeOrder = async () => {
     const orderDetails = {
       orderNumber: `ORD-${new Date().getTime()}`,
       totalAmount: totalPrice,
-      description: "Order description goes here...",
+      description: "",
       paymentMethodId: selectedPaymentMethod?.id,
-      userId: "User123", // You would typically get this from the logged-in user
+      userId: "tien", // You would typically get this from the logged-in user
       cartItems: cart.map((item) => ({
         id: item.id,
         productName: item.productName,
+        imageUrl: item.imageUrl,
         quantity: item.quantity,
         price: item.price,
         selectedSize: item.selectedSize,
         note: item.note ?? "",
         toppings: item.toppings.map((topping: any) => ({
-          id: topping.Id,
-          name: topping.ProductName,
-          price: topping.Price,
+          id: topping.id,
+          name: topping.productName,
+          imageUrl: topping.imageUrl,
+          price: topping.price,
         })),
       })),
     };
@@ -107,11 +116,13 @@ const OrderSummary: React.FC<OrderSummaryProps> = ({
       if (!response.ok) throw new Error("Failed to place order");
 
       const result = await response.json();
-      setOrderStatus("✅ Order successfully!");
+      console.log("ORDER RESULT:", result); 
+      // setOrderStatus("✅ Order successfully!");
+      router.push(`/bill?orderId=${result.Id}`);
       onConfirmOrder(result); // pass the server response back to parent
     } catch (error) {
       console.error(error);
-      setOrderStatus("❌ Order failed. Please try again.");
+      setOrderStatus("❌ Xảy ra lỗi: " + error + ".Hãy thử lại");
     }
   };
 
@@ -194,10 +205,7 @@ const OrderSummary: React.FC<OrderSummaryProps> = ({
               </button>
               <button
                 className="bg-green-600 text-white px-4 py-2 rounded"
-                onClick={() => {
-                  setShowConfirmPopup(false);
-                  finalizeOrder();
-                }}
+                onClick={() => {handleCorfirmOrderByMomo(true)}}
               >
                 Đã thanh toán
               </button>
@@ -211,7 +219,6 @@ const OrderSummary: React.FC<OrderSummaryProps> = ({
           {orderStatus}
         </div>
       )}
-
     </div>
   );
 };

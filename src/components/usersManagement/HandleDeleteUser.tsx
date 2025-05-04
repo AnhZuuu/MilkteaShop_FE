@@ -1,39 +1,6 @@
 "use client";
 import React from 'react';
 
-// interface User {
-//     Id: string;
-//     Username: string;
-//     PasswordHash: string;
-//     Email: string;
-//     PhoneNumber: string;
-//     ImageUrl: string;
-//     Role: string;
-//     IsActive: boolean;
-//     CreatedAt: Date;
-//     UpdatedAt: Date;
-//     DeletedAt: Date;
-//     CreatedBy: string;
-//   }
-
-//new interface
-interface User {
-  id: string;
-  username: string;
-  passwordHash: string;
-  email: string;
-  phoneNumber: string;
-  imageUrl: string;
-  role: number;
-  isActive: boolean;
-  orders : string[];
-  createdAt: Date;
-  updatedAt: Date;
-  deletedAt: Date;
-  createdBy: string;
-  updatedBy: string;
-}
-
 interface DeleteConfirmationModalProps {
   onClose: () => void;
   onConfirm: () => void;
@@ -73,16 +40,21 @@ const DeleteUserHandle = async (
   setSelectedUser: React.Dispatch<React.SetStateAction<User | null>>
 ) => {
   if (!selectedUser) return;
+  console.log("Selected User:", JSON.stringify(selectedUser, null, 2));
 
   const updatedUser = {
     ...selectedUser,
-    DeletedAt: new Date(),
-    IsActive: false,
+    role: String(selectedUser.role),
+    updatedAt: new Date().toISOString(),
+    deletedAt: new Date().toISOString(), 
+    isActive: false
   };
+  
+  console.log("User updated: " + JSON.stringify(updatedUser));
 
   try {
     const response = await fetch(
-      `https://milkteashop-fmcufmfkaja8d6ec.southeastasia-01.azurewebsites.net/User/${selectedUser.id}`,
+      `https://milkteashop-fmcufmfkaja8d6ec.southeastasia-01.azurewebsites.net/api/User/${selectedUser.id}`,
       {
         method: 'PUT',
         headers: {
@@ -93,8 +65,9 @@ const DeleteUserHandle = async (
     );
 
     if (!response.ok) {
-      throw new Error('Failed to delete user');
-    }
+      const errorDetails = await response.text(); 
+      throw new Error(`Failed to delete user: ${errorDetails}`);
+    }  
 
     // Update the local state with the updated user data
     const updatedUsers = users.map((user) =>

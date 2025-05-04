@@ -1,4 +1,3 @@
-import { Category } from "./CategoryTable";
 import React from "react";
 
 interface ConfirmDeleteModalProps {
@@ -61,7 +60,7 @@ const ValidationModal = ({ onClose }: { onClose : () => void }) => (
       <h3 className="text-xl font-semibold mb-4 text-red-600">
         Không thể xóa
       </h3>
-      <p className="mb-6">Phân loại này có sản phẩm.</p>
+      <p className="mb-6">Phân loại này hiện đang có sản phẩm.</p>
       <div className="flex justify-end">
         <button
           onClick={onClose}
