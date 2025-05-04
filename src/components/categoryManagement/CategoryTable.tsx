@@ -10,27 +10,14 @@ import {
 import HandleCreateCategory from "./HandleCreateCategory";
 import HandleUpdateCategory from "./HandleUpdateCategory";
 
-export interface Category {
-  id: string;
-  categoryName: string;
-  description: string;
-  products: any[] | null;
-  categoryExtraMappings: any[] | null;
-  isActive: boolean;
-  createdAt: Date;
-  updatedAt: Date;
-  deletedAt: Date | null;
-  createdBy: string | null;
-  updatedBy: string | null;
-}
-
 const CategoryTable = () => {
   const [userInfo, setUserInfo] = useState<any>(null);
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
   const [currentPage, setCurrentPage] = useState(1);
-  const [pageSize, setPageSize] = useState(3);
+  const [pageSize, setPageSize] = useState(5);
   const [category, setCategory] = useState<Category[]>([]);
+  const [productCounts, setProductCounts] = useState<Record<string, number>>({});
 
   const [selectedCategory, setSelectedCategory] = useState<Category | null>(
     null
@@ -59,7 +46,27 @@ const CategoryTable = () => {
       }
     };
 
+    const fetchProducts = async () => {
+      try {
+        const res = await fetch(
+          "https://milkteashop-fmcufmfkaja8d6ec.southeastasia-01.azurewebsites.net/api/Product"
+        );
+        const products = await res.json();
+
+        const counts: Record<string, number> = {};
+        products.forEach((product: any) => {
+          const catId = product.categoryId;
+          counts[catId] = (counts[catId] || 0) + 1;
+        });
+
+        setProductCounts(counts);
+      } catch (err) {
+        console.error("Error fetching products:", err);
+      }
+    };
+
     fetchCategory();
+    fetchProducts();
   }, []);
 
   const filteredCategory = useMemo(() => {
@@ -105,7 +112,7 @@ const CategoryTable = () => {
 
   const handleConfirmDelete = async () => {
     if (selectedCategory) {
-      if (selectedCategory.products && selectedCategory.products.length > 0) {
+      if (productCounts[selectedCategory.id] > 0) {
         setShowDeleteModal(false);
         setShowValidationModal(true);
         return;
@@ -161,7 +168,7 @@ const CategoryTable = () => {
               Mô tả
             </th>
             <th className="border border-gray-300 px-4 py-2 text-left">
-              Ngày tạo
+              Ngày cập nhập
             </th>
             <th className="border border-gray-300 px-4 py-2 text-left">
               Sản phẩm
@@ -183,9 +190,13 @@ const CategoryTable = () => {
               <td className="border border-gray-300 px-4 py-2">
                 <div>{format(cate.updatedAt, "MMM dd, yyyy")}</div>
               </td>
-              <td className="border border-gray-300 px-4 py-2">
+              {/* <td className="border border-gray-300 px-4 py-2">
                 {cate.products?.length}
+              </td> */}
+              <td className="border border-gray-300 px-4 py-2">
+                {productCounts[cate.id] || 0}
               </td>
+
               <td className="border border-gray-300 px-4 py-2">
                 <span
                   className={`px-2 py-1 rounded-full text-xs font-semibold ${
@@ -199,12 +210,12 @@ const CategoryTable = () => {
               </td>
               <td className={`border border-gray-300 px-4 py-2`}>
                 <div className="flex space-x-4">
-                  <button
+                  {/* <button
                     className="text-blue-600 hover:text-blue-800"
                     title="View Details"
                   >
                     <FiEye className="w-5 h-5" />
-                  </button>
+                  </button> */}
 
                   <button
                     className="text-green-600 hover:text-green-800"
