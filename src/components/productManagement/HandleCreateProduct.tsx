@@ -4,7 +4,7 @@ import React, { useState, useEffect } from "react";
 export interface CreateProductPayload {
   productName: string;
   description: string;
-  price: number;
+  // price: number;
   imageUrl: string;
   // size: string;
   categoryId: string;
@@ -57,13 +57,14 @@ const HandleCreateProduct: React.FC<HandleCreateProductProps> = ({
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (!productName.trim() || !description.trim() || !price || !imageUrl.trim() || !categoryId) return;
+    if (!productName.trim() || !description.trim() || !imageUrl.trim() || !categoryId) return;
+    // if (!productName.trim() || !description.trim() || !price || !imageUrl.trim() || !categoryId) return;
     // if (!productName.trim() || !description.trim() || !price || !size.trim() || !imageUrl.trim() || !categoryId) return;
 
     const newProduct: CreateProductPayload = {
       productName,
       description,
-      price: typeof price === "string" ? parseFloat(price) : price,
+      // price: typeof price === "string" ? parseFloat(price) : price,
       imageUrl,
       // size,
       categoryId,
@@ -162,7 +163,8 @@ const HandleCreateProduct: React.FC<HandleCreateProductProps> = ({
                 className="mt-1 p-3 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
               />
             </div>
-            <div className="flex flex-col">
+
+            {/* <div className="flex flex-col">
               <label htmlFor="price" className="text-sm font-bold text-gray-700">
                 Giá (đồng)<span className="text-red-500">*</span>
               </label>
@@ -174,7 +176,8 @@ const HandleCreateProduct: React.FC<HandleCreateProductProps> = ({
                 placeholder="Ví dụ: 45000"
                 className="mt-1 p-3 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
               />
-            </div>
+            </div> */}
+            
             <div className="flex flex-col">
               <label htmlFor="imageUrl" className="text-sm font-bold text-gray-700">
                 Ảnh URL
