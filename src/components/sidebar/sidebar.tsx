@@ -28,7 +28,7 @@ export default function SideBar() {
     <div className="h-full flex flex-col gap-6 p-4 bg-gray-100">
       <img src="/logo.png" alt="Logo" className="w-24 mx-auto mb-4" />
       <div className="text-2xl font-bold text-center">
-        Milktea Ordering Management
+        Hệ thống đặt trà sữa
       </div>
 
       {/* Navigation Links */}
