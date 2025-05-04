@@ -6,11 +6,11 @@ import { useRouter } from "next/navigation";
 
 const LoginComponent = () => {
   const router = useRouter();
-  const [isPhone, setIsPhone] = useState(false); // Track whether we are login with phone or username
+  const [isPhone, setIsPhone] = useState(false);
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
-  const [phone, setPhone] = useState("");
+  const [phoneNumber, setPhoneNumber] = useState("");
 
   const [errors, setErrors] = useState<{ [key: string]: string }>({});
   const [showPassword, setShowPassword] = useState(false);
@@ -18,19 +18,20 @@ const LoginComponent = () => {
   const validateLogin = () => {
     const newErrors: { [key: string]: string } = {};
 
-    const hasUsernameAndPassword = username && password;
-    const hasPhoneNumber = phone; // assume phoneNumber is a state variable too
+    const hasUsername = username && password;
+    const hasPhoneNumber = phoneNumber && password;
 
-    if (!hasUsernameAndPassword && !hasPhoneNumber) {
+    if (!hasUsername && !hasPhoneNumber) {
       newErrors.general =
         "Bạn phải nhập Tên đăng nhập & Mật khẩu hoặc Số điện thoại";
     } else {
-      if (hasUsernameAndPassword) {
+      if (hasUsername) {
         if (!username) newErrors.username = "Bạn chưa nhập Tên đăng nhập";
         if (!password) newErrors.password = "Bạn chưa nhập Mật khẩu";
       }
       if (hasPhoneNumber) {
-        if (!phone) newErrors.phoneNumber = "Bạn chưa nhập Số điện thoại";
+        if (!phoneNumber) newErrors.phoneNumber = "Bạn chưa nhập Số điện thoại";
+        if (!password) newErrors.password = "Bạn chưa nhập Mật khẩu";
       }
     }
 
@@ -41,6 +42,18 @@ const LoginComponent = () => {
   const handleLogin = async () => {
     if (!validateLogin()) return;
 
+    const login = isPhone
+      ? {
+          username: "string",
+          password,
+          phoneNumber,
+        }
+      : {
+          username,
+          password,
+          phoneNumber: "string",
+        };
+
     try {
       const response = await fetch(
         "https://milkteashop-fmcufmfkaja8d6ec.southeastasia-01.azurewebsites.net/api/User/login",
@@ -49,11 +62,7 @@ const LoginComponent = () => {
           headers: {
             "Content-Type": "application/json",
           },
-          body: JSON.stringify({
-            username,
-            password,
-            phoneNumber: "string",
-          }),
+          body: JSON.stringify(login),
         }
       );
 
@@ -61,19 +70,17 @@ const LoginComponent = () => {
 
       if (!response.ok) {
         setErrors({ general: data.message || "Đăng nhập thất bại" });
-      } else {        
+      } else {
         console.log("Login successful", data);
-        
+
         localStorage.setItem("user", JSON.stringify(data));
 
-        if(data.role === "Admin") {
-          router.push('/dashboard');
-        } 
-        else if(data.role === "Manager") {
-          router.push('/dashboard');
-        }
-        else {
-          router.push('/menu');
+        if (data.role === "Admin") {
+          router.push("/dashboard");
+        } else if (data.role === "Manager") {
+          router.push("/dashboard");
+        } else {
+          router.push("/menu");
         }
       }
     } catch (error) {
@@ -128,8 +135,8 @@ const LoginComponent = () => {
               <input
                 type="text"
                 placeholder="Số điện thoại"
-                value={phone}
-                onChange={(e) => setPhone(e.target.value)}
+                value={phoneNumber}
+                onChange={(e) => setPhoneNumber(e.target.value)}
                 className="w-full p-3 mb-4 border border-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-600 bg-gray-900 text-white"
               />
               {errors.phoneNumber && (
@@ -138,11 +145,40 @@ const LoginComponent = () => {
                 </p>
               )}
 
-              <button
-                // onClick={handleRegister}
-                className="w-full bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700 transition duration-200"
+              <label
+                htmlFor="password"
+                className="block text-md font-medium text-white p-1"
               >
-                Đăng ký
+                Mật khẩu
+              </label>
+
+              <input
+                type={showPassword ? "text" : "password"}
+                id="password"
+                name="password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                className="mt-1 block w-full px-4 py-3 border border-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-600 bg-gray-900 text-white"
+                placeholder="Nhập mật khẩu"
+                aria-label="Password"
+                autoComplete="current-password"
+                style={{ colorScheme: "dark" }}
+              />
+              {errors.password && (
+                <p className="w-full  mb-4 text-red-500">{errors.password}</p>
+              )}
+
+              {errors.general && (
+                <p className="w-full text-center text-red-500 mt-2">
+                  {errors.general}
+                </p>
+              )}
+
+              <button
+                onClick={handleLogin}
+                className="w-full mt-2 bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700 transition duration-200"
+              >
+                Đăng nhập
               </button>
             </>
           ) : (
