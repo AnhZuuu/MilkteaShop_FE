@@ -3,16 +3,34 @@
 "use client";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
 
 export default function SideBar() {
+  type User = {
+    name: string;
+    role: string;
+  };
   const pathname = usePathname();
   const router = useRouter();
+  const [user, setUser] = useState<{ role: string } | null>(null);
+
 
   const handleLogout = () => {
     localStorage.clear(); // or remove specific keys like localStorage.removeItem('user')
     sessionStorage.clear(); // optional: clear session storage too
     router.push("/"); // redirect to login page
   };
+  useEffect(() => {
+    const userData = localStorage.getItem("user");
+    if (userData) {
+      try {
+        const parsedUser = JSON.parse(userData);
+        setUser(parsedUser);
+      } catch (error) {
+        console.error("Invalid user data", error);
+      }
+    }
+  }, []);
 
   const links = [
     { href: "/dashboard", label: "Quản lý người dùng" },
@@ -21,7 +39,21 @@ export default function SideBar() {
     { href: "/dashboard/order", label: "Quản lý đơn hàng" },
     { href: "/dashboard/store", label: "Quản lý cửa hàng" },
     { href: "/dashboard/mapping", label: "Quản lý Mapping" },
-    { href: "/dashboard/mapping2", label: "Quản lý Mapping2" }
+    { href: "/dashboard/mapping2", label: "Quản lý Mapping2" },
+    { href: "/dashboard/mapping2", label: "Quản lý doanh thu (chưa có)" }
+
+  ];
+
+  const adminLinks = [
+    { href: "/dashboard", label: "Quản lý người dùng" },
+    // { href: "/dashboard/product", label: "Quản lý sản phẩm" },
+    // { href: "/dashboard/category", label: "Quản lý loại sản phẩm" },
+    // { href: "/dashboard/order", label: "Quản lý đơn hàng" },
+    { href: "/dashboard/store", label: "Quản lý cửa hàng" },
+    // { href: "/dashboard/mapping", label: "Quản lý Mapping" },
+    // { href: "/dashboard/mapping2", label: "Quản lý Mapping2" },
+    { href: "/dashboard/mapping2", label: "Quản lý doanh thu (chưa có)" }
+
   ];
 
   return (
@@ -32,7 +64,37 @@ export default function SideBar() {
       </div>
 
       {/* Navigation Links */}
-      <nav className="flex flex-col gap-4 mt-8">
+      {user?.role === "Admin" ? (
+        // Admin nav
+        <nav className="flex flex-col gap-4 mt-8">
+          {adminLinks.map((link) => (
+            <Link
+              key={link.href}
+              href={link.href}
+              className={`px-4 py-2 rounded-lg shadow transition 
+          ${pathname === link.href ? "bg-blue-500 text-white" : "bg-white hover:bg-gray-200"}`}
+            >
+              {link.label}
+            </Link>
+          ))}
+        </nav>
+      ) : (
+        // Non-admin nav
+        <nav className="flex flex-col gap-4 mt-8">
+          {links.map((link) => (
+            <Link
+              key={link.href}
+              href={link.href}
+              className={`px-4 py-2 rounded-lg shadow transition 
+          ${pathname === link.href ? "bg-blue-500 text-white" : "bg-white hover:bg-gray-200"}`}
+            >
+              {link.label}
+            </Link>
+          ))}
+        </nav>
+      )}
+
+      {/* <nav className="flex flex-col gap-4 mt-8">
         {links.map((link) => (
           <Link
             key={link.href}
@@ -43,15 +105,15 @@ export default function SideBar() {
             {link.label}
           </Link>
         ))}
-      </nav>
+      </nav> */}
 
       <nav className="flex flex-col gap-4 mt-8">
-      <button
+        <button
           onClick={handleLogout}
-          className="flex items-center gap-3 px-3 py-2 mt-3 font-medium text-gray-700 rounded-lg group text-theme-sm hover:bg-gray-100 hover:text-gray-700 px-4 py-2 rounded-lg shadow transition"
+          className="flex items-center gap-3 px-3 py-2 mt-3 font-medium text-red-700 rounded-lg group text-theme-sm hover:bg-gray-100 hover:text-gray-700 px-4 py-2 rounded-lg shadow transition"
         >
           <svg
-            className="fill-gray-500 group-hover:fill-gray-700 dark:group-hover:fill-gray-300"
+            className="fill-red-500 group-hover:fill-gray-700 dark:group-hover:fill-gray-300"
             width="24"
             height="24"
             viewBox="0 0 24 24"

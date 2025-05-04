@@ -71,7 +71,8 @@ const UserTable = () => {
   const filteredUsers = useMemo(() => {
     return users.filter((user) => {
       const matchesSearch =
-        user.username.toLowerCase().includes(searchTerm.toLowerCase());
+        // user.username.toLowerCase().includes(searchTerm.toLowerCase());
+        user.username.includes(searchTerm);
 
       const matchesRole =
         roleFilter === "all" || user.role === parseInt(roleFilter);
