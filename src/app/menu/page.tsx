@@ -3,53 +3,66 @@ import CartPanel from "@/components/menu/CartPanel";
 import ProductGrid from "@/components/menu/ProductGrid";
 import Sidebar from "@/components/menu/Sidebar";
 import OrderSummary from "@/components/order/OrderSummary";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 
-interface Product {
-  id: string;
-  productName: string;
-  description: string;
-  categoryId: string;
-  category: any;
-  imageUrl: string;
-  productType: string | null;
-  productSizes: any[];
-  isActive: boolean;
-  price: number;
-}
+// interface Product {
+//   id: string;
+//   productName: string;
+//   description: string;
+//   categoryId: string;
+//   category: any;
+//   imageUrl: string;
+//   productType: string | null;
+//   productSizes: any[];
+//   isActive: boolean;
+//   price: number;
+// }
 
-interface CartItem extends Product {
-  quantity: number;
-  selectedSize: string;
-  toppings: Product[];
-  note?: string;
-}
+// interface CartItem extends Product {
+//   quantity: number;
+//   selectedSize: string;
+//   toppings: Product[];
+//   note?: string;
+// }
 
 const MenuPage: React.FC = () => {
   const [selectedCategory, setSelectedCategory] = useState<string>("all");
   const [products, setProducts] = useState<Product[]>([]);
-  const [cart, setCart] = useState<CartItem[]>([]);
-  const [isCheckout, setIsCheckout] = useState(false); 
+  const [productSize, setProductSize] = useState<ProductSize[]>([]);
+  const [cart, setCart] = useState<OrderItem[]>([]);
+  const [isCheckout, setIsCheckout] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
 
-  const fetchProducts = async () => {
-    try {
-      const res = await fetch(
-        "https://6801a85581c7e9fbcc430ea1.mockapi.io/swp391/Products"
-      );
-      const data = await res.json();
-      setProducts(
-        data.filter((p: Product) => p.isActive && p.productType !== "Extra")
-      );
-    } catch (err) {
-      console.error("Failed to load products", err);
-    }
-  };
+  useEffect(() => {
+    const fetchProducts = async () => {
+      try {
+        const res = await fetch(
+          "https://milkteashop-fmcufmfkaja8d6ec.southeastasia-01.azurewebsites.net/api/Product"
+        );
+        const data = await res.json();
+        setProducts( data.filter((p: Product) => p.isActive && p.productType !== "Extra"));
+      } catch (err) {
+        console.error("Failed to load products", err);
+      }
+    };
 
-  React.useEffect(() => {
+    const fetchProductSize = async () => {
+      try {
+        const res = await fetch(
+          "https://milkteashop-fmcufmfkaja8d6ec.southeastasia-01.azurewebsites.net/api/ProductSize"
+        );
+        const data = await res.json();
+        setProductSize(data);
+      } catch (err) {
+        console.error("Failed to load products", err);
+      }
+    };
+
     fetchProducts();
+    fetchProductSize();
   }, []);
 
-  const handleAddToCart = (item: CartItem) => {
+  const handleAddToCart = (item: OrderItem) => {
     setCart((prev) => [...prev, item]);
   };
 
@@ -67,6 +80,8 @@ const MenuPage: React.FC = () => {
       <Sidebar
         selectedCategory={selectedCategory}
         setSelectedCategory={setSelectedCategory}
+        searchQuery={searchQuery}
+        setSearchQuery={setSearchQuery}
       />
       <div
         className={`transition-all duration-300 ${
@@ -76,24 +91,34 @@ const MenuPage: React.FC = () => {
         <ProductGrid
           category={selectedCategory}
           products={products}
+          searchQuery={searchQuery}
           onAddToCart={handleAddToCart}
         />
       </div>
-      {!isCheckout ? (
-        
-        <CartPanel
-        cart={cart}
-        onRemove={(index) => {
-          const newCart = [...cart];
-          newCart.splice(index, 1);
-          setCart(newCart);
-        }}
-        isCheckout={isCheckout}
-        setIsCheckout={setIsCheckout} 
-      />
+
+      {cart.length ? (
+        <>
+          {!isCheckout ? (
+            <CartPanel
+              cart={cart}
+              productSizes={productSize}
+              products={products}
+              onRemove={(index) => {
+                const newCart = [...cart];
+                newCart.splice(index, 1);
+                setCart(newCart);
+              }}
+              isCheckout={isCheckout}
+              setIsCheckout={setIsCheckout}
+            />
+          ) : (
+            <></>
+            // <OrderSummary cart={cart} onConfirmOrder={handleConfirmOrder} />
+          )}
+        </>
       ) : (
-        <OrderSummary cart={cart} onConfirmOrder={handleConfirmOrder} />
-      )}     
+        <></>
+      )}
     </div>
   );
 };

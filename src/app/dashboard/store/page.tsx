@@ -1,8 +1,6 @@
 'use client';
 
 import Image from "next/image";
-import LineChartOne from "@/components/charts/line/LineChartOne";
-import BarChartOne from "@/components/charts/bar/BarChartOne";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import StoreShowcase from "@/components/store/StorePage";
