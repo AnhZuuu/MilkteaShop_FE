@@ -4,7 +4,7 @@ import React, { useState } from "react";
 interface Store {
   id: string;
   storeName: string;
-  description: string;
+  description?: string;
   address: string;
   phoneNumber: string;
   updatedBy?: string;
