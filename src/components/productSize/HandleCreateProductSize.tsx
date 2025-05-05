@@ -6,6 +6,7 @@ import React, { useEffect, useState } from 'react';
 type Product = {
   id: string;
   productName: string;
+  productType: 'Main' | 'Extra' | null;
 };
 
 type ProductSizePayload = {
@@ -32,8 +33,12 @@ export default function HandleCreateProductSize({
   useEffect(() => {
     const fetchProducts = async () => {
       const res = await fetch('https://milkteashop-fmcufmfkaja8d6ec.southeastasia-01.azurewebsites.net/api/Product');
-      const data = await res.json();
-      setProducts(data);
+      // const data = await res.json();
+      const productsData: Product[] = await res.json();
+            const mainProducts = productsData.filter(
+                (product) => product.productType === 'Main'
+              );
+      setProducts(mainProducts);
     };
     fetchProducts();
   }, []);
