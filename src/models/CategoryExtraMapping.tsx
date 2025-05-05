@@ -1,11 +1,7 @@
-interface Store {
+interface categoryExtraMapping {
     id: string;
-    storeName: string;
-    description: string;
-    address: string;
-    phoneNumber: string;
-    users: User[]; 
-    orders: Order[]; 
+    mainCategoryId : string;
+    extraCategoryId : string;
     isActive: boolean;
     createdAt: string;
     updatedAt: string;

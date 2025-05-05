@@ -1,27 +1,41 @@
 "use client";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Product } from "../productManagement/ProductTable";
 
-interface CartItem {
-  id: string;
-  productName: string;
-  imageUrl: string;
-  price: number;
-  quantity: number;
-  selectedSize: string;
-  toppings: Product[];
-  note?: string;
-}
+// interface CartItem {
+//   id: string;
+//   productName: string;
+//   imageUrl: string;
+//   price: number;
+//   quantity: number;
+//   selectedSize: string;
+//   toppings: Product[];
+//   note?: string;
+// }
 
+// interface CartPanelProps {
+//   cart: OrderItem[];
+//   onRemove: (index: number) => void;
+//   isCheckout: boolean;
+//   setIsCheckout: (value: boolean) => void;
+// }
 interface CartPanelProps {
-  cart: CartItem[];
+  cart: OrderItem[];
   onRemove: (index: number) => void;
   isCheckout: boolean;
   setIsCheckout: (value: boolean) => void;
+  productSizes: ProductSize[];
+  products: Product[];
 }
 
-const CartPanel: React.FC<CartPanelProps> = ({ cart, onRemove, isCheckout, setIsCheckout }) => {
-
+const CartPanel: React.FC<CartPanelProps> = ({
+  cart,
+  onRemove,
+  isCheckout,
+  setIsCheckout,
+  productSizes,
+  products,
+}) => {
   const totalItems = cart.length;
   const totalPrice = cart.reduce((sum, item) => {
     const toppingsPrice = (item.toppings ?? []).reduce(
@@ -30,6 +44,18 @@ const CartPanel: React.FC<CartPanelProps> = ({ cart, onRemove, isCheckout, setIs
     );
     return sum + (item.price + toppingsPrice) * item.quantity;
   }, 0);
+
+  const getProductDetails = (item: OrderItem) => {
+    const sizeInfo = productSizes.find((ps) => ps.id === item.productSizeId);
+    if (!sizeInfo) return null;
+    const productInfo = products.find((p) => p.id === sizeInfo.productId);
+    return {
+      productName: productInfo?.productName || "Sản phẩm không xác định",
+      imageUrl: productInfo?.imageUrl || "",
+      size: sizeInfo.size,
+      basePrice: sizeInfo.price,
+    };
+  };
 
   return (
     <div className="bg-[#1c2c4a] p-4 rounded-lg shadow-lg text-white max-w-md mx-auto">
@@ -46,13 +72,13 @@ const CartPanel: React.FC<CartPanelProps> = ({ cart, onRemove, isCheckout, setIs
             className="mb-4 bg-[#26354d] p-3 rounded-lg relative"
           >
             <div className="flex items-center">
-              <img
+              {/* <img
                 src={item.imageUrl}
                 alt={item.productName}
                 className="w-14 h-14 object-cover rounded mr-3"
-              />
+              /> */}
               <div className="flex-1">
-                <h3 className="font-semibold text-sm">{item.productName}</h3>
+                {/* <h3 className="font-semibold text-sm">{item.productName}</h3>
                 <p className="text-xs text-gray-300">
                   Kích cỡ: {item.selectedSize}
                 </p>
@@ -62,7 +88,26 @@ const CartPanel: React.FC<CartPanelProps> = ({ cart, onRemove, isCheckout, setIs
                 <p className="text-xs text-gray-300">
                   Giá:{" "}
                   {((item.price ?? 0) * (item.quantity ?? 1)).toLocaleString()}₫
-                </p>
+                </p> */}
+                {(() => {
+                  const details = getProductDetails(item);
+                  return (
+                    <>
+                      <h3 className="font-semibold text-sm">
+                        {details?.productName}
+                      </h3>
+                      <p className="text-xs text-gray-300">
+                        Kích cỡ: {details?.size}
+                      </p>
+                      <p className="text-xs text-gray-300">
+                        Số lượng: {item.quantity}
+                      </p>
+                      <p className="text-xs text-gray-300">
+                        Giá: {(item.price * item.quantity).toLocaleString()}₫
+                      </p>
+                    </>
+                  );
+                })()}
               </div>
               <button
                 onClick={() => onRemove(index)}
@@ -72,13 +117,24 @@ const CartPanel: React.FC<CartPanelProps> = ({ cart, onRemove, isCheckout, setIs
               </button>
             </div>
 
-            {item.toppings.length > 0 && (
+            {/* {item.toppings.length > 0 && (
               <div className="mt-2 ml-3 border-l border-gray-500 pl-3">
                 <p className="text-xs font-semibold text-gray-300">Topping:</p>
                 {item.toppings.map((topping: any) => (
                   <div key={topping.id} className="text-xs text-gray-400">
                     - {topping.productName} (
                     {(topping.price ?? 0).toLocaleString()}₫)
+                  </div>
+                ))}
+              </div>
+            )} */}
+            {Array.isArray(item.toppings) && item.toppings.length > 0 && (
+              <div className="mt-2 ml-3 border-l border-gray-500 pl-3">
+                <p className="text-xs font-semibold text-gray-300">Topping:</p>
+                {item.toppings.map((topping: Product) => (
+                  <div key={topping.id} className="text-xs text-gray-400">
+                    - {topping.productName} 
+                    {/* ({(topping.price ?? 0).toLocaleString()}₫) */}
                   </div>
                 ))}
               </div>
@@ -101,9 +157,7 @@ const CartPanel: React.FC<CartPanelProps> = ({ cart, onRemove, isCheckout, setIs
               Thanh toán
             </button>
           )}
-          <button
-            className="mt-4 w-full bg-green-600 hover:bg-green-700 text-white py-2 rounded-xl font-medium"        
-          >
+          <button className="mt-4 w-full bg-green-600 hover:bg-green-700 text-white py-2 rounded-xl font-medium">
             Tiếp tục đặt món
           </button>
         </div>
