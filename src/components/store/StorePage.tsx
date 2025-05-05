@@ -12,7 +12,7 @@ import HandleCreateStore from "./HandleCreateStore";
 import HandleUpdateStore from "./HandleUpdateStore";
 
 type Store = {
-  id: number;
+  id: string;
   storeName: string;
   address: string;
   phoneNumber: string;
