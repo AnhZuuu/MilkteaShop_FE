@@ -11,6 +11,15 @@ export default function Home() {
   const router = useRouter();
   const [loading, setLoading] = useState(true);
   const [user, setUser] = useState(null);
+  const [width, setWidth] = useState(0);
+
+  
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      setWidth(window.innerWidth);
+    }
+  }, []);
+
 
   useEffect(() => {
     const userData = localStorage.getItem("user");
