@@ -1,6 +1,6 @@
 'use client';
 import BillPage from "@/components/order/bill";
-import { useEffect, useState } from "react";
+import { Suspense, useEffect, useState } from "react";
 
 
 
@@ -14,7 +14,9 @@ export default function Bill() {
   }, []);
   return (
     <>
+      <Suspense fallback={<div className="text-white">Đang tải hoá đơn...</div>}>
       <BillPage />
+    </Suspense>
     </>
   );
 }
