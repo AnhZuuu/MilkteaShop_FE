@@ -1,4 +1,4 @@
-import { Product } from "./ProductTable";
+// import { Product } from "./ProductTable";
 
 export const deleteProduct = async (
   id: string,
