@@ -195,7 +195,7 @@ const OrderSummary: React.FC<OrderSummaryProps> = ({
         <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
           <div className="bg-white text-black p-6 rounded shadow-lg">
             <img
-              src="/logo.png"
+              src="/qr.jpeg"
               alt={"QR"}
               className="mx-auto"
               width={400}
