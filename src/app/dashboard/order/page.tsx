@@ -1,13 +1,25 @@
 'use client';
 
 import Image from "next/image";
-import LineChartOne from "@/components/charts/line/LineChartOne";
-import BarChartOne from "@/components/charts/bar/BarChartOne";
+// import LineChartOne from "@/components/charts/line/LineChartOne";
+// import BarChartOne from "@/components/charts/bar/BarChartOne";
 import { useRouter } from "next/navigation";
+import dynamic from "next/dynamic";
 import { useEffect, useState } from "react";
-import OrderTable from "@/components/orderManagement/OrderTable";
+// import OrderTable from "@/components/orderManagement/OrderTable";
+const OrderTable = dynamic(() => import("@/components/orderManagement/OrderTable"), {
+  ssr: false,
+});
 
+const LineChartOne = dynamic(() => import("@/components/charts/line/LineChartOne"), {
+  ssr: false,
+});
+
+const BarChartOne = dynamic(() => import("@/components/charts/bar/BarChartOne"), {
+  ssr: false,
+});
 export default function Home() {
+
   const router = useRouter();
   const [loading, setLoading] = useState(true);
   const [user, setUser] = useState(null);
