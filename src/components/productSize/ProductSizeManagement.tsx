@@ -4,6 +4,7 @@
 
 import React, { useEffect, useState } from 'react';
 import HandleCreateProductSize from './HandleCreateProductSize';
+import HandleUpdateProductSize from './HandleUpdateProductSize';
 
 type Product = {
   id: string;
@@ -25,6 +26,7 @@ export default function ProductSizeManager() {
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
   const [showOnlyUnpriced, setShowOnlyUnpriced] = useState(false);
   const [showModal, setShowModal] = useState(false);
+  const [editingSize, setEditingSize] = useState<ProductSize | null>(null);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -34,9 +36,9 @@ export default function ProductSizeManager() {
       ]);
 
       const productsData: Product[] = await productsRes.json();
-            const mainProducts = productsData.filter(
-                (product) => product.productType === 'Main'
-              );
+      const mainProducts = productsData.filter(
+        (product) => product.productType === 'Main'
+      );
       const sizesData = await sizesRes.json();
 
       setProducts(mainProducts);
@@ -91,10 +93,11 @@ export default function ProductSizeManager() {
                 <th className="text-left p-2"></th>
               </tr>
             </thead>
+
             <tbody>
               {filteredProducts.map((product) => (
                 <tr key={product.id} className="hover:bg-gray-100 text-center text-xl  "
-                onClick={() => setSelectedProduct(product)}>
+                  onClick={() => setSelectedProduct(product)}>
                   <td className="p-2">{product.productName}</td>
                 </tr>
               ))}
@@ -106,6 +109,36 @@ export default function ProductSizeManager() {
                 </tr>
               )}
             </tbody>
+
+            {/* <tbody>
+              {[0, 1, 2].map((size) => {
+                const sizeData = productSizes.find(
+                  (ps) => ps.productId === selectedProduct.id && ps.size === size
+                );
+
+                return (
+                  <tr key={size}>
+                    <td className="p-2 text-xl">{SIZE_LABELS[size]}</td>
+                    <td className="p-2 text-xl flex items-center gap-2">
+                      {sizeData ? (
+                        <>
+                          <span>{sizeData.price} đồng</span>
+                          <button
+                            onClick={() => setEditingSize(sizeData)}
+                            className="text-blue-600 hover:underline text-sm"
+                          >
+                            Cập nhật
+                          </button>
+                        </>
+                      ) : (
+                        'Chưa có'
+                      )}
+                    </td>
+                  </tr>
+                );
+              })}
+            </tbody> */}
+
           </table>
         </div>
 
@@ -124,7 +157,8 @@ export default function ProductSizeManager() {
                   <th className="text-left p-2">Giá</th>
                 </tr>
               </thead>
-              <tbody>
+
+              {/* <tbody>
                 {[0, 1, 2].map((size) => {
                   const sizeData = productSizes.find(
                     (ps) =>
@@ -139,7 +173,39 @@ export default function ProductSizeManager() {
                     </tr>
                   );
                 })}
+              </tbody> */}
+
+              <tbody>
+                {selectedProduct &&
+                  [0, 1, 2].map((size) => {
+                    const sizeData = productSizes.find(
+                      (ps) => ps.productId === selectedProduct.id && ps.size === size
+                    );
+
+                    return (
+                      <tr key={size}>
+                        <td className="p-2 text-xl">{SIZE_LABELS[size]}</td>
+                        <td className="p-2 text-xl flex items-center gap-2">
+                          {sizeData ? (
+                            <>
+                              <span>{sizeData.price} đồng</span>
+                              <button
+                                onClick={() => setEditingSize(sizeData)}
+                                className="text-blue-600 hover:underline text-sm"
+                              >
+                                Cập nhật
+                              </button>
+                            </>
+                          ) : (
+                            'Chưa có'
+                          )}
+                        </td>
+                      </tr>
+                    );
+                  })}
               </tbody>
+
+
             </table>
           ) : (
             <div className="p-4 text-gray-500">Chưa chọn sản phẩm nào.</div>
@@ -159,6 +225,27 @@ export default function ProductSizeManager() {
             </button>
             <h2 className="text-lg font-bold mb-4">Thêm giá cho sản phẩm theo kích thước</h2>
             <HandleCreateProductSize onSuccess={() => setShowModal(false)} />
+          </div>
+        </div>
+      )}
+
+      {editingSize && (
+        <div className="fixed inset-0 bg-black/30 flex items-center justify-center z-50">
+          <div className="bg-white p-6 rounded-xl w-full max-w-md shadow-xl relative">
+            <button
+              onClick={() => setEditingSize(null)}
+              className="absolute top-2 right-2 text-gray-500 hover:text-black"
+            >
+              ✕
+            </button>
+            <h2 className="text-lg font-bold mb-4">Cập nhật giá</h2>
+            <HandleUpdateProductSize
+              initialData={editingSize}
+              onClose={() => setEditingSize(null)}
+              onSuccess={() => {
+                setShowModal(false); // This triggers refetch via useEffect
+              }}
+            />
           </div>
         </div>
       )}

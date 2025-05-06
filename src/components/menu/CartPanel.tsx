@@ -1,6 +1,7 @@
 "use client";
 import React, { useEffect, useState } from "react";
 
+
 const sizeMap: { [key: number]: string } = {
   0 : "S",
   1 : "M",
