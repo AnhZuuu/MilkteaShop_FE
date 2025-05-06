@@ -13,7 +13,7 @@ const BillPage = () => {
     const fetchOrder = async () => {
       if (!orderId) return;
       try {
-        const res = await fetch(`https://6804e0a979cb28fb3f5c0f7e.mockapi.io/swp391/Orders/${orderId}`);
+        const res = await fetch(`https://milkteashop-fmcufmfkaja8d6ec.southeastasia-01.azurewebsites.net/api/Order/${orderId}`);
         const data = await res.json();
         setOrder(data);
       } catch (err) {
@@ -38,10 +38,10 @@ const BillPage = () => {
       <p className="text-sm text-gray-300 mb-2">Mã đơn hàng: {order.orderNumber}</p>
       <p className="text-sm text-gray-300 mb-4">Phương thức thanh toán: {order.paymentMethodId}</p>
 
-      {order.cartItems.length === 0 ? (
+      {order.orderItems.length === 0 ? (
         <p className="text-gray-300">Không có mặt hàng nào trong đơn.</p>
       ) : (
-        order.cartItems.map((item: any, index: number) => (
+        order.orderItems.map((item: any, index: number) => (
           <div
             key={item.id + "-" + index}
             className="mb-4 bg-[#26354d] p-3 rounded-lg relative"
