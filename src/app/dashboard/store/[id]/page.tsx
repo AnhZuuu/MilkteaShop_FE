@@ -1,6 +1,15 @@
 import { notFound } from "next/navigation";
 import { FaMapMarkerAlt, FaPhone, FaStore, FaCheckCircle, FaTimesCircle } from "react-icons/fa";
 
+type User = {
+  username: string;
+  role: string;
+  imageUrl?: string;
+  phoneNumber: string;
+  email?: string;
+  isActive: boolean;
+};
+
 type Store = {
   id: string;
   storeName: string;
@@ -8,6 +17,7 @@ type Store = {
   address: string;
   phoneNumber: string;
   isActive: boolean;
+  users: User[];
 };
 
 export default async function StoreDetailPage({ params }: { params: { id: string } }) {
@@ -55,6 +65,34 @@ export default async function StoreDetailPage({ params }: { params: { id: string
                 <span className="text-gray-500">Đã đóng cửa</span>
               </>
             )}
+          </div>
+        </div>
+
+        <div className="mt-8">
+          <h2 className="text-xl font-semibold text-gray-800 mb-4">Nhân viên</h2>
+          <div className="space-y-4">
+            {store.users.map((user) => (
+              <div key={user.username} className="flex items-center gap-3">
+                <img
+                  src={user.imageUrl || "https://via.placeholder.com/50"}
+                  alt={user.username}
+                  className="w-12 h-12 rounded-full"
+                />
+                <div>
+                  <p className="text-gray-700 font-medium">{user.username}</p>
+                  <p className="text-gray-500">{user.role}</p>
+                  <p className="text-gray-500">{user.phoneNumber}</p>
+                  <p className="text-gray-500">{user.email || "Chưa có email"}</p>
+                </div>
+                <div className="ml-auto">
+                  {user.isActive ? (
+                    <span className="text-green-500">Hoạt động</span>
+                  ) : (
+                    <span className="text-gray-500">Không hoạt động</span>
+                  )}
+                </div>
+              </div>
+            ))}
           </div>
         </div>
       </div>
