@@ -219,9 +219,6 @@ const OrderTable = () => {
                 {store.find((s) => s.id === order.storeId)?.storeName || ""}
               </td>
               <td className="border border-gray-300 px-4 py-2">
-                {store.find((s) => s.id === order.storeId)?.storeName || ""}
-              </td>
-              <td className="border border-gray-300 px-4 py-2">
                 <div>{format(order.createdAt, "MMM dd, yyyy")}</div>
               </td>
               <td className="px-6 py-4 whitespace-nowrap">
@@ -229,7 +226,7 @@ const OrderTable = () => {
                   <button
                     className="text-blue-600 hover:text-blue-800"
                     title="View Details"
-                    onClick={() => router.push(`/orders/${order.id}`)}
+                    onClick={() => router.push(`/dashboard/order/${order.id}`)}
                   >
                     <FiEye className="w-5 h-5" />
                   </button>
