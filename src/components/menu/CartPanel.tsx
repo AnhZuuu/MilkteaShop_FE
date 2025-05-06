@@ -1,6 +1,7 @@
 "use client";
 import React, { useEffect, useState } from "react";
-import { Product } from "../productManagement/ProductTable";
+// import  Product  from "../productManagement/ProductTable";
+
 
 // interface CartItem {
 //   id: string;
