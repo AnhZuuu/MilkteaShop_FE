@@ -11,8 +11,4 @@ interface Order {
     createdAt: string;
   }
   
-  enum PaymentMethod {
-    Momo = 0,
-    Cash = 1 
-  }
   
