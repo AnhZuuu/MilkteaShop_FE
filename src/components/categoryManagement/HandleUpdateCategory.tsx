@@ -1,6 +1,5 @@
 "use client";
 import React, { useState, useEffect } from "react";
-import { Category } from "./CategoryTable";
 
 interface HandleUpdateCategoryProps {
   category: Category;
