@@ -28,7 +28,7 @@ const CartPanel: React.FC<CartPanelProps> = ({
   const totalItems = cart.length;
   const totalPrice = cart.reduce((sum, item) => {
     const toppingsPrice = (item.toppings ?? []).reduce(
-      (tSum, topping: any) => (tSum + topping.productSizes[0]?.price),
+      (tSum, topping: any) => tSum + (topping.productSizes[0]?.price ?? 0),
       0
     );
     return sum + (item.price + toppingsPrice) * item.quantity;
