@@ -8,6 +8,7 @@ const OrderDetailPage = () => {
   const [order, setOrder] = useState<Order | null>(null);
   const [user, setUser] = useState<User | null>(null);
   const [store, setStore] = useState<Store | null>(null);
+  const [loading, setLoading] = useState(false);
 
   const router = useRouter();
   const paymentMethodMap: { [key: number]: string } = {
@@ -17,6 +18,19 @@ const OrderDetailPage = () => {
   const sizeMap: { [key: number]: string } = { 0: "S", 1: "M", 2: "L" };
 
   useEffect(() => {
+    const userData = localStorage.getItem("user");
+    if (!userData) {
+      router.replace("/"); 
+    } else {
+      const parsedUser = JSON.parse(userData);
+      if (parsedUser.role !== "Admin" && parsedUser.role !== "Manager") {
+        router.replace("/"); 
+      } else {
+        setUser(parsedUser);
+        setLoading(false);
+      }
+    }
+
     const fetchOrder = async () => {
       const res = await fetch(
         `https://milkteashop-fmcufmfkaja8d6ec.southeastasia-01.azurewebsites.net/api/Order/${id}`

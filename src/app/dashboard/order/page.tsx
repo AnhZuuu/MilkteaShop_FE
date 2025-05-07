@@ -39,10 +39,15 @@ export default function Home() {
     if (typeof window !== "undefined") {
       const userData = localStorage.getItem("user");
       if (!userData) {
-        router.replace("/");
+        router.replace("/"); 
       } else {
-        setUser(JSON.parse(userData));
-        setLoading(false);
+        const parsedUser = JSON.parse(userData);
+        if (parsedUser.role !== "Admin" && parsedUser.role !== "Manager") {
+          router.replace("/"); 
+        } else {
+          setUser(parsedUser);
+          setLoading(false);
+        }
       }
     }
 
