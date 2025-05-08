@@ -5,10 +5,12 @@ import {
   FiEye,
   FiPlus,
   FiSearch,
+  FiSettings,
   FiTrash2,
 } from "react-icons/fi";
 import HandleCreateProduct from "./HandleCreateProduct";
 import HandleUpdateProduct, { Product } from "./HandleUpdateProduct";
+import HandleSetPriceProduct from "./HandleSetPriceForProduct";
 
 interface Category {
   id: string;
@@ -25,6 +27,7 @@ const ProductTable = ({ userInfo }: { userInfo: any }) => {
   const [currentPage, setCurrentPage] = useState(1);
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [editProduct, setEditProduct] = useState<Product | null>(null);
+  const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
   const pageSize = 5;
 
   useEffect(() => {
@@ -32,7 +35,7 @@ const ProductTable = ({ userInfo }: { userInfo: any }) => {
       try {
         const [productRes, categoryRes] = await Promise.all([
           fetch(
-            "https://milkteashop-fmcufmfkaja8d6ec.southeastasia-01.azurewebsites.net/api/Product",
+            "https://milkteashop-fmcufmfkaja8d6ec.southeastasia-01.azurewebsites.net/api/Product"
             // { headers: { Authorization: `Bearer ${userInfo?.token}` } }
           ),
           fetch(
@@ -180,15 +183,14 @@ const ProductTable = ({ userInfo }: { userInfo: any }) => {
         </select>
 
         <div className="flex justify-end mb-4 md:basis-1/5">
-        {/* <button
+          {/* <button
           onClick={() => setShowCreateModal(true)}
           className="flex items-center gap-2 px-4 py-2 text-white bg-blue-600 hover:bg-blue-700 rounded-md"
         >
           <FiPlus />
           Thêm sản phẩm
         </button> */}
-      </div>
-      
+        </div>
       </div>
 
       {/* Table */}
@@ -212,10 +214,11 @@ const ProductTable = ({ userInfo }: { userInfo: any }) => {
               </td>
               <td className="border px-4 py-2">
                 <button
-                  className={`px-2 py-1 rounded-full text-xs font-semibold ${product.isActive
-                    ? "bg-green-100 text-green-800"
-                    : "bg-red-100 text-red-800"
-                    }`}
+                  className={`px-2 py-1 rounded-full text-xs font-semibold ${
+                    product.isActive
+                      ? "bg-green-100 text-green-800"
+                      : "bg-red-100 text-red-800"
+                  }`}
                   onClick={() => toggleProductStatus(product)}
                 >
                   {product.isActive ? "Còn hàng" : "Tạm hết"}
@@ -223,9 +226,19 @@ const ProductTable = ({ userInfo }: { userInfo: any }) => {
               </td>
               <td className="border px-4 py-2">
                 <div className="flex space-x-3">
-                  <button className="text-blue-600 hover:text-blue-800">
-                    <FiEye />
-                  </button>
+                  {product.productSizes.length > 0 ? (
+                    <></>
+                  ) : (
+                    <div>
+                      <button
+                        className="text-blue-600 hover:text-blue-800"
+                        onClick={() => setSelectedProduct(product)}
+                      >
+                        <FiSettings />
+                      </button>
+                    </div>
+                  )}
+
                   <button
                     className="text-green-600 hover:text-green-800"
                     onClick={() => setEditProduct(product)}
@@ -261,8 +274,9 @@ const ProductTable = ({ userInfo }: { userInfo: any }) => {
           {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
             <button
               key={page}
-              className={`px-3 py-1 border rounded-md ${currentPage === page ? "bg-blue-500 text-white" : ""
-                }`}
+              className={`px-3 py-1 border rounded-md ${
+                currentPage === page ? "bg-blue-500 text-white" : ""
+              }`}
               onClick={() => setCurrentPage(page)}
             >
               {page}
@@ -283,22 +297,21 @@ const ProductTable = ({ userInfo }: { userInfo: any }) => {
           userInfo={userInfo}
           onClose={() => setShowCreateModal(false)}
           onProductCreated={(newProduct) => {
-            setProducts((prev) => [newProduct, ...prev]);
-            setShowCreateModal(false);
+            if (newProduct && newProduct.productName) {
+              setProducts([...products, newProduct]);
+            }
           }}
-        />
-      )}
-      {showCreateModal && (
-        <HandleCreateProduct
-          userInfo={userInfo}
-          onClose={() => setShowCreateModal(false)}
-          onProductCreated={(newProduct) => {
-            setProducts((prev) => [newProduct, ...prev]);
-            setShowCreateModal(false);
-          }}
+          
         />
       )}
 
+      {selectedProduct && (
+        <HandleSetPriceProduct
+          userInfo={userInfo}
+          product={selectedProduct}
+          onClose={() => setSelectedProduct(null)}
+        />
+      )}
 
       {/* Edit Modal */}
       {editProduct && (
