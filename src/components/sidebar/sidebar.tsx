@@ -41,7 +41,8 @@ export default function SideBar() {
     { href: "/dashboard/store", label: "Cửa hàng" },
     { href: "/dashboard/mapping", label: "Mapping" },
     // { href: "/dashboard/mapping2", label: "Mapping2" },
-    { href: "/dashboard/mapping2", label: "Doanh thu" }
+    { href: "/dashboard/mapping2", label: "Doanh thu" },
+    { href: "/dashboard/voucher", label: "Voucher" }
 
   ];
 
