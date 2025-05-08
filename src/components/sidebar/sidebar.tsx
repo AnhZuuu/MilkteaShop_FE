@@ -33,7 +33,8 @@ export default function SideBar() {
   }, []);
 
   const links = [
-    { href: "/dashboard", label: "Người dùng" },
+    { href: "/dashboard", label: "Thống kê" },
+    { href: "/dashboard/user", label: "Người dùng" },
     { href: "/dashboard/category", label: "Loại sản phẩm" },
     { href: "/dashboard/product", label: "Sản phẩm" },
     { href: "/dashboard/productSize", label: "Giá sản phẩm" },
