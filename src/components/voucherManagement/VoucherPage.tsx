@@ -5,6 +5,7 @@ import {
   ConfirmDeleteVoucherModal,
   handleDeleteVoucher,
 } from "./HandleDeleteVoucher";
+import HandleUpdateVoucher from "./HandleUpdateVoucher";
 
 const VoucherCard = () => {
   const [vouchers, setVouchers] = useState<Voucher[]>([]);
@@ -12,6 +13,7 @@ const VoucherCard = () => {
   const [selectedVoucher, setSelectedVoucher] = useState<Voucher | null>(null);
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [showUpdateModal, setShowUpdateModal] = useState(false);
 
   useEffect(() => {
     const fetchVouchers = async () => {
@@ -33,6 +35,11 @@ const VoucherCard = () => {
     setVouchers((prev) => [...prev, newVoucher]);
   };
 
+  const handleUpdateClick = (voucher: Voucher) => {
+    setSelectedVoucher(voucher);
+    setShowUpdateModal(true);
+  };
+
   const handleDeleteClick = (voucher: Voucher) => {
     setSelectedVoucher(voucher);
     setShowDeleteModal(true);
@@ -40,9 +47,9 @@ const VoucherCard = () => {
 
   return (
     <div className="container mx-auto px-4 py-8">
-      <h1 className="text-2xl font-bold mb-4">🎁 Danh sách Voucher</h1>
+      <h1 className="text-2xl font-bold mb-4 text-center">🎫 Danh sách Voucher 🎟️</h1>
       <button
-        className="bg-blue-600 text-white px-4 py-2 rounded mb-4"
+        className="bg-green-500 text-white px-4 py-2 rounded mb-4"
         onClick={() => setShowCreateModal(true)}
       >
         ➕ Tạo voucher mới
@@ -56,21 +63,22 @@ const VoucherCard = () => {
             <div className="bg-white rounded-2xl shadow-md border border-gray-200 p-6 max-w-md w-full hover:shadow-lg transition-all duration-300">
               <div className="flex justify-between">
                 {voucher.isActive ? (
-                  <span className="flex items-center text-green-600 text-sm">
-                    <FaCheckCircle className="mr-1" /> Kích hoạt
-                  </span>
+                  <>
+                    <span className="flex items-center text-green-600 text-sm">
+                      <FaCheckCircle className="mr-1" /> Kích hoạt
+                    </span>
+                    <span className="flex items-center text-red-600 text-sm">
+                      <FaTrash
+                        className="mr-1"
+                        onClick={() => handleDeleteClick(voucher)}
+                      />
+                    </span>
+                  </>
                 ) : (
                   <span className="flex items-center text-red-400 text-sm">
                     <FaTimesCircle className="mr-1" /> Ngưng hoạt động
                   </span>
                 )}
-
-                <span className="flex items-center text-red-600 text-sm">
-                  <FaTrash
-                    className="mr-1"
-                    onClick={() => handleDeleteClick(voucher)}
-                  />
-                </span>
               </div>
               <div className="flex justify-between items-start">
                 <div>
@@ -91,7 +99,7 @@ const VoucherCard = () => {
               </div>
               <button
                 className="mt-4 w-full bg-blue-500 hover:bg-blue-600 text-white py-2 rounded-xl font-medium transition-all"
-                //   onClick={() => onEdit(voucher)}
+                onClick={() => handleUpdateClick(voucher)}
               >
                 Chỉnh sửa
               </button>
@@ -104,6 +112,15 @@ const VoucherCard = () => {
         <HandleCreateVoucher
           onClose={() => setShowCreateModal(false)}
           onVoucherCreated={handleVoucherCreated}
+        />
+      )}
+
+      {showUpdateModal && selectedVoucher && (
+        <HandleUpdateVoucher
+          onClose={() => setShowUpdateModal(false)}
+          selectedVoucher={selectedVoucher}
+          vouchers={vouchers}
+          setVouchers={setVouchers}
         />
       )}
 
