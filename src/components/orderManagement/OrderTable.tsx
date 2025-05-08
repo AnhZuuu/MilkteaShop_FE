@@ -6,19 +6,6 @@ import HandleUpdateOrder from "./HandleUpdateOrder";
 import ConfirmDeleteOrderModal from "./HandleDeleteOrder";
 import { useRouter } from "next/navigation";
 
-interface Order {
-  id: string;
-  orderNumber: string;
-  totalAmount: number;
-  description: string;
-  orderItems: any[];
-  paymentMethod: number;
-  userId: string;
-  storeId: string | null;
-  store: any;
-  createdAt: string;
-}
-
 const paymentMethodMap: Record<number, string> = {
   0: "Momo",
   1: "Tiền mặt",
@@ -31,6 +18,9 @@ const OrderTable = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [paymentFilter, setPaymentFilter] = useState("all");
   const [storeFilter, setStoreFilter] = useState("all");
+  const [dayFilter, setDayFilter] = useState("");
+  const [monthFilter, setMonthFilter] = useState("");
+  const [statusFilter, setStatusFilter] = useState("all");
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(5);
   const router = useRouter();
@@ -39,6 +29,17 @@ const OrderTable = () => {
   const [showDetailModal, setShowDetailModal] = useState(false);
   const [showUpdateModal, setShowUpdateModal] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
+  
+  const statusClassMap: Record<string, string> = {
+    Processing: "bg-blue-200 text-blue-800",
+    Completed: "bg-green-200 text-green-800",
+    Cancelled: "bg-red-200 text-red-800",
+  };
+  const statusMap: { [key: string]: string } = {
+    "Processing": "Đang xử lý",
+    "Completed": "Hoàn thành",
+    "Cancelled": "Đã hủy",
+  };
 
   useEffect(() => {
     const fetchOrders = async () => {
@@ -97,9 +98,37 @@ const OrderTable = () => {
       const matchesStore =
         storeFilter === "all" || order.storeId === storeFilter;
 
-      return matchesSearch && matchesPayment && matchesStore;
+      const orderDate = new Date(order.createdAt);
+
+      const matchesDay =
+        !dayFilter || format(orderDate, "yyyy-MM-dd") === dayFilter;
+
+      const matchesMonth =
+        !monthFilter || format(orderDate, "yyyy-MM") === monthFilter;
+
+      // const matchesStatus = orders.filter((order) =>
+      //   statusFilter === "all" ? true : order.orderStatus === statusFilter
+      // );
+      const matchesStatus = statusFilter === "all" || order.orderStatus === statusFilter;
+
+      return (
+        matchesSearch &&
+        matchesPayment &&
+        matchesStore &&
+        matchesDay &&
+        matchesMonth &&
+        matchesStatus
+      );
     });
-  }, [orders, searchTerm, paymentFilter, storeFilter]);
+  }, [
+    orders,
+    searchTerm,
+    paymentFilter,
+    storeFilter,
+    dayFilter,
+    monthFilter,
+    statusFilter,
+  ]);
 
   const paginatedOrders = useMemo(() => {
     const start = (currentPage - 1) * pageSize;
@@ -130,7 +159,24 @@ const OrderTable = () => {
 
   return (
     <div className="mx-auto max-w-5xl p-6 bg-white rounded-lg shadow">
-      <h2 className="text-2xl font-bold mb-4">Quản lý đơn hàng</h2>
+      <div className="flex flex-col md:flex-row justify-between items-center gap-4 m-2 w-full">
+        <h2 className="text-2xl font-bold mb-4">Quản lý đơn hàng</h2>
+        <div className="flex gap-2">
+          <input
+            type="date"
+            className="p-2 border rounded-lg bg-blue-100"
+            value={dayFilter}
+            onChange={(e) => setDayFilter(e.target.value)}
+          />
+          <input
+            type="month"
+            className="p-2 border rounded-lg bg-blue-100"
+            value={monthFilter}
+            onChange={(e) => setMonthFilter(e.target.value)}
+          />
+        </div>
+      </div>
+
       <div className="flex flex-col md:flex-row gap-6 mb-6">
         <div className="relative md:basis-2/3 w-full">
           <FiSearch className="absolute left-2 top-1/2 transform -translate-y-1/2 text-gray-400" />
@@ -144,7 +190,7 @@ const OrderTable = () => {
         </div>
         <div className="flex md:basis-1/3 w-full">
           <select
-            className="w-full p-2 border rounded-lg"
+            className="w-[80] p-2 border rounded-lg mr-4"
             value={paymentFilter}
             onChange={(e) => setPaymentFilter(e.target.value)}
           >
@@ -168,6 +214,17 @@ const OrderTable = () => {
               </option>
             ))}
           </select>
+
+          <select
+            value={statusFilter}
+            onChange={(e) => setStatusFilter(e.target.value)}
+            className="p-2 border rounded"
+          >
+            <option value="all">Tất cả</option>
+            <option value="Processing">Đang xử lý</option>
+            <option value="Completed">Hoàn thành</option>
+            <option value="Cancelled">Đã hủy</option>
+          </select>
         </div>
       </div>
 
@@ -187,13 +244,16 @@ const OrderTable = () => {
               Thanh toán
             </th>
             <th className="border border-gray-300 px-4 py-2 text-left">
-              Người dùng
+              Người tạo
             </th>
             <th className="border border-gray-300 px-4 py-2 text-left">
               Cửa hàng
             </th>
             <th className="border border-gray-300 px-4 py-2 text-left">
               Ngày tạo
+            </th>
+            <th className="border border-gray-300 px-4 py-2 text-left">
+              Trạng thái
             </th>
           </tr>
         </thead>
@@ -220,6 +280,13 @@ const OrderTable = () => {
               </td>
               <td className="border border-gray-300 px-4 py-2">
                 <div>{format(order.createdAt, "MMM dd, yyyy")}</div>
+              </td>
+              <td
+                className={`border border-gray-300 px-4 py-2 ${
+                  statusClassMap[order.orderStatus || "bg-white"]
+                }`}
+              >
+                <div>{statusMap[order.orderStatus || ""]}</div>
               </td>
               <td className="px-6 py-4 whitespace-nowrap">
                 <div className="flex space-x-4">
