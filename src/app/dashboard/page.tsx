@@ -14,8 +14,13 @@ const adminPage = () => {
     if (!userData) {
       router.replace("/"); 
     } else {
-      setUser(JSON.parse(userData));
-      setLoading(false);
+      const parsedUser = JSON.parse(userData);
+      if (parsedUser.role !== "Admin" && parsedUser.role !== "Manager") {
+        router.replace("/"); 
+      } else {
+        setUser(parsedUser);
+        setLoading(false);
+      }
     }
   }, []);
 

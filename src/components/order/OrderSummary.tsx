@@ -1,70 +1,59 @@
 import { useRouter } from "next/navigation";
 import React, { useState } from "react";
 
-interface PaymentMethod {
-  id: string;
-  name: string;
-}
-
-interface Product {
-  id: string;
-  productName: string;
-  description: string;
-  categoryId: string;
-  category: any;
-  imageUrl: string;
-  productType: string | null;
-  productSizes: any[];
-  price: number;
-  isActive: boolean;
-}
-
-interface CartItem {
-  id: string;
-  productName: string;
-  imageUrl: string;
-  price: number;
-  quantity: number;
-  selectedSize: string;
-  toppings: Product[];
-  note?: string;
-}
-
 interface OrderSummaryProps {
-  cart: CartItem[];
+  cart: OrderItem[];
   onConfirmOrder: (order: any) => void;
+  setIsCheckout: (val: boolean) => void;
+  products: Product[];
+  productSizes: ProductSize[];
 }
 
 const OrderSummary: React.FC<OrderSummaryProps> = ({
   cart,
   onConfirmOrder,
+  setIsCheckout,
+  products,
+  productSizes,
 }) => {
-  const [selectedPaymentMethod, setSelectedPaymentMethod] =
-    useState<PaymentMethod | null>(null);
+  const [selectedPaymentMethod, setSelectedPaymentMethod] = useState<number | undefined>();
   const [showConfirmPopup, setShowConfirmPopup] = useState(false);
   const [orderStatus, setOrderStatus] = useState<string | null>(null);
   const router = useRouter();
 
-  const paymentMethods: PaymentMethod[] = [
-    { id: "momo", name: "Momo" },
-    { id: "cash", name: "Tiền mặt" },
+  const sizeMap: { [key: number]: string } = { 0: "S", 1: "M", 2: "L" };
+  const paymentMethods = [
+    { value: 0, label: "Momo" },
+    { value: 1, label: "Tiền mặt" },
   ];
+
+  const getProductDetails = (item: OrderItem) => {
+    const sizeInfo = productSizes.find((ps) => ps.id === item.productSizeId);
+    if (!sizeInfo) return null;
+    const productInfo = products.find((p) => p.id === sizeInfo.productId);
+    return {
+      productName: productInfo?.productName || "Sản phẩm không xác định",
+      imageUrl: productInfo?.imageUrl || "",
+      size: sizeMap[sizeInfo.size],
+      basePrice: sizeInfo.price,
+    };
+  };
 
   const totalPrice = cart.reduce((sum, item) => {
     const toppingsPrice = (item.toppings ?? []).reduce(
-      (tSum, topping: any) => tSum + topping.price,
+      (tSum, topping: any) => tSum + (topping.productSizes[0]?.price ?? 0),
       0
     );
     return sum + (item.price + toppingsPrice) * item.quantity;
   }, 0);
 
   const handleConfirmOrder = () => {
-    if (!selectedPaymentMethod) {
+    if (selectedPaymentMethod === undefined) {
       alert("Chọn phương thức thanh toán!");
       return;
     }
 
-    if (selectedPaymentMethod.id === "momo") {
+    if (selectedPaymentMethod === 0) {
       setShowConfirmPopup(true);
       return;
     }
@@ -75,54 +64,73 @@ const OrderSummary: React.FC<OrderSummaryProps> = ({
   const handleCorfirmOrderByMomo = (fromPopup: boolean = false) => {
     setShowConfirmPopup(false);
     finalizeOrder();
-  }
+  };
 
   const finalizeOrder = async () => {
-    const orderDetails = {
-      orderNumber: `ORD-${new Date().getTime()}`,
-      totalAmount: totalPrice,
-      description: "",
-      paymentMethodId: selectedPaymentMethod?.id,
-      userId: "tien", // You would typically get this from the logged-in user
-      cartItems: cart.map((item) => ({
-        id: item.id,
-        productName: item.productName,
-        imageUrl: item.imageUrl,
-        quantity: item.quantity,
-        price: item.price,
-        selectedSize: item.selectedSize,
-        note: item.note ?? "",
-        toppings: item.toppings.map((topping: any) => ({
-          id: topping.id,
-          name: topping.productName,
-          imageUrl: topping.imageUrl,
-          price: topping.price,
-        })),
-      })),
-    };
-
     try {
-      const response = await fetch(
-        "https://6804e0a979cb28fb3f5c0f7e.mockapi.io/swp391/Orders",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(orderDetails),
+      // Step 1: Create the order
+      const orderRes = await fetch("https://milkteashop-fmcufmfkaja8d6ec.southeastasia-01.azurewebsites.net/api/Order", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({  
+          description: "",
+          paymentMethod: selectedPaymentMethod,
+          userId: "d4bff976-ae9e-48a3-88f3-08dd8abc31e4",
+          storeId: "246f1b26-538e-43f5-ab34-08dd892d4d8b"
+        }),
+      });
+
+      if (!orderRes.ok) throw new Error("Tạo đơn hàng thất bại!");
+
+      const newOrder = await orderRes.json();
+
+      console.log("newOrder: " + newOrder)
+      console.log("newOrder: " + newOrder.id)
+
+      // Step 2: Create OrderItems
+      for (const item of cart) {
+        const toppingItems: string[] = [];
+
+        if (item.toppings) {
+          for (const topping of item.toppings) {
+            const toppingId = topping.productSizes[0]?.id;
+            if (!toppingId) {
+              setOrderStatus("❌ Sản phẩm đi kèm chưa được set giá.");
+              return;
+            }
+            toppingItems.push(toppingId);
+          }
         }
-      );
 
-      if (!response.ok) throw new Error("Failed to place order");
+        const orderItem = {
+          orderId: newOrder.id,
+          productSizeId: item.productSizeId,
+          quantity: item.quantity,
+          toppingItems: toppingItems,
+          // toppingItems: item.toppings ? item.toppings.map((t) => t.id) : []
+        };
 
-      const result = await response.json();
-      console.log("ORDER RESULT:", result); 
-      // setOrderStatus("✅ Order successfully!");
-      router.push(`/bill?orderId=${result.Id}`);
-      onConfirmOrder(result); // pass the server response back to parent
+        const itemRes = await fetch("https://milkteashop-fmcufmfkaja8d6ec.southeastasia-01.azurewebsites.net/api/OrderItem", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(orderItem),
+        });
+        console.log("productSizeId: " + orderItem.productSizeId)
+        console.log("toppings: " + orderItem.toppingItems)
+        console.log("quantity: " + orderItem.quantity)
+
+
+        if (!itemRes.ok) throw new Error("Tạo OrderItem thất bại!");
+      }
+
+      // Step 3: Redirect
+      setOrderStatus("Tạo đơn hàng thành công.");
+      router.push(`/bill?orderId=${newOrder.id}`);
+
+      onConfirmOrder(newOrder);
     } catch (error) {
-      console.error(error);
-      setOrderStatus("❌ Xảy ra lỗi: " + error + ".Hãy thử lại");
+      console.error("ORDER ERROR:", error);
+      setOrderStatus("❌ Lỗi khi tạo đơn hàng. Hãy thử lại.");
     }
   };
 
@@ -132,43 +140,47 @@ const OrderSummary: React.FC<OrderSummaryProps> = ({
 
       <div>
         <h3 className="font-semibold">Mặt hàng</h3>
-        {cart.map((item, index) => (
-          <div key={index} className="border-b border-gray-600 py-2">
-            <div className="flex items-center justify-between">
-              <span>
-                {item.productName} ({item.selectedSize})
-              </span>
-              <span>
-                {item.quantity} x {item.price.toLocaleString()}₫
-              </span>
-            </div>
-            {item.toppings.length > 0 && (
-              <div className="ml-4 mt-1 text-sm text-gray-300">
-                <p className="font-medium">Toppings:</p>
-                {item.toppings.map((topping, i: any) => (
-                  <p key={i}>
-                    - {topping.productName} ({topping.price.toLocaleString()}₫)
-                  </p>
-                ))}
+        {cart.map((item, index) => {
+          const details = getProductDetails(item);
+          return (
+            <div key={index} className="border-b border-gray-600 py-2">
+              <div className="flex items-center justify-between">
+                <span>
+                  {details?.productName} ({details?.size})
+                </span>
+                <span>
+                  {item.quantity} x {item.price.toLocaleString()}₫
+                </span>
               </div>
-            )}
-          </div>
-        ))}
+              {item.toppings && item.toppings.length > 0 && (
+                <div className="ml-4 mt-1 text-sm text-gray-300">
+                  <p className="font-medium">Toppings:</p>
+                  {item.toppings.map((topping, i: any) => (
+                    <p key={i}>
+                      - {topping.productName} (
+                      {topping.productSizes[0]?.price.toLocaleString() ?? 0}₫)
+                    </p>
+                  ))}
+                </div>
+              )}
+            </div>
+          );
+        })}
       </div>
 
       <div className="mt-4">
         <h3 className="font-semibold">Chọn hình thức thanh toán</h3>
         <div className="space-y-2">
           {paymentMethods.map((method) => (
-            <label key={method.id} className="flex items-center space-x-2">
+            <label key={method.value} className="flex items-center space-x-2">
               <input
                 type="radio"
                 name="paymentMethod"
-                value={method.id}
-                onChange={() => setSelectedPaymentMethod(method)}
-                checked={selectedPaymentMethod?.id === method.id}
+                value={method.value}
+                onChange={(e) => setSelectedPaymentMethod(Number(e.target.value))}
+                checked={selectedPaymentMethod === method.value}
               />
-              <span>{method.name}</span>
+              <span>{method.label}</span>
             </label>
           ))}
         </div>
@@ -184,13 +196,19 @@ const OrderSummary: React.FC<OrderSummaryProps> = ({
         >
           Xác nhận đơn hàng
         </button>
+        <button
+          onClick={() => setIsCheckout(false)}
+          className="w-full bg-blue-600 hover:bg-blue-700 text-white py-2 rounded-xl mt-2"
+        >
+          Tiếp tục đặt món
+        </button>
       </div>
 
       {showConfirmPopup && (
         <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
           <div className="bg-white text-black p-6 rounded shadow-lg">
             <img
-              src="/logo.png"
+              src="/qr.jpeg"
               alt={"QR"}
               className="mx-auto"
               width={400}
@@ -205,7 +223,9 @@ const OrderSummary: React.FC<OrderSummaryProps> = ({
               </button>
               <button
                 className="bg-green-600 text-white px-4 py-2 rounded"
-                onClick={() => {handleCorfirmOrderByMomo(true)}}
+                onClick={() => {
+                  handleCorfirmOrderByMomo(true);
+                }}
               >
                 Đã thanh toán
               </button>

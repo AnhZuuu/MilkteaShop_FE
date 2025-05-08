@@ -70,6 +70,8 @@ const LoginComponent = () => {
 
       if (!response.ok) {
         setErrors({ general: data.message || "Đăng nhập thất bại" });
+      } else if (data.isActive === false) {
+        setErrors({ general: "Tài khoản của bạn đã bị khóa" });
       } else {
         console.log("Login successful", data);
 

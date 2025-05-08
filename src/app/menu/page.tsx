@@ -3,27 +3,8 @@ import CartPanel from "@/components/menu/CartPanel";
 import ProductGrid from "@/components/menu/ProductGrid";
 import Sidebar from "@/components/menu/Sidebar";
 import OrderSummary from "@/components/order/OrderSummary";
+import { useRouter } from "next/navigation";
 import React, { useEffect, useState } from "react";
-
-// interface Product {
-//   id: string;
-//   productName: string;
-//   description: string;
-//   categoryId: string;
-//   category: any;
-//   imageUrl: string;
-//   productType: string | null;
-//   productSizes: any[];
-//   isActive: boolean;
-//   price: number;
-// }
-
-// interface CartItem extends Product {
-//   quantity: number;
-//   selectedSize: string;
-//   toppings: Product[];
-//   note?: string;
-// }
 
 const MenuPage: React.FC = () => {
   const [selectedCategory, setSelectedCategory] = useState<string>("all");
@@ -32,15 +13,28 @@ const MenuPage: React.FC = () => {
   const [cart, setCart] = useState<OrderItem[]>([]);
   const [isCheckout, setIsCheckout] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
+  const router = useRouter();
+  const [loading, setLoading] = useState(true);
+  const [user, setUser] = useState(null);
 
   useEffect(() => {
+    const userData = localStorage.getItem("user");
+    if (!userData) {
+      router.replace("/"); 
+    } else {
+      setUser(JSON.parse(userData));
+      setLoading(false);
+    }
+
     const fetchProducts = async () => {
       try {
         const res = await fetch(
           "https://milkteashop-fmcufmfkaja8d6ec.southeastasia-01.azurewebsites.net/api/Product"
         );
         const data = await res.json();
-        setProducts( data.filter((p: Product) => p.isActive && p.productType !== "Extra"));
+        setProducts(
+          data.filter((p: Product) => p.isActive && p.productType !== "Extra")
+        );
       } catch (err) {
         console.error("Failed to load products", err);
       }
@@ -85,7 +79,7 @@ const MenuPage: React.FC = () => {
       />
       <div
         className={`transition-all duration-300 ${
-          cart.length ? "w-[65%]" : "w-[85%]"
+          cart.length ? "w-[70%]" : "w-[85%]"
         } p-4 overflow-y-auto scrollbar-hidden`}
       >
         <ProductGrid
@@ -112,8 +106,14 @@ const MenuPage: React.FC = () => {
               setIsCheckout={setIsCheckout}
             />
           ) : (
-            <></>
             // <OrderSummary cart={cart} onConfirmOrder={handleConfirmOrder} />
+            <OrderSummary
+              cart={cart}
+              onConfirmOrder={handleConfirmOrder}
+              setIsCheckout={setIsCheckout}
+              products={products}
+              productSizes={productSize}
+            />
           )}
         </>
       ) : (
