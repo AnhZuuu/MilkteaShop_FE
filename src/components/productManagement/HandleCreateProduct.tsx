@@ -162,19 +162,6 @@ const HandleCreateProduct: React.FC<HandleCreateProductProps> = ({
               />
             </div>
 
-            {/* <div className="flex flex-col">
-              <label htmlFor="price" className="text-sm font-bold text-gray-700">
-                Giá (đồng)<span className="text-red-500">*</span>
-              </label>
-              <input
-                type="number"
-                id="price"
-                value={price}
-                onChange={(e) => setPrice(Number(e.target.value))}
-                placeholder="Ví dụ: 45000"
-                className="mt-1 p-3 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-              />
-            </div> */}
             
             <div className="flex flex-col">
               <label htmlFor="imageUrl" className="text-sm font-bold text-gray-700">
@@ -190,19 +177,6 @@ const HandleCreateProduct: React.FC<HandleCreateProductProps> = ({
               />
             </div>
 
-            {/* <div className="flex flex-col">
-              <label htmlFor="size" className="text-sm font-bold text-gray-700">
-                Kích thước (Size)
-              </label>
-              <input
-                type="text"
-                id="size"
-                value={size}
-                onChange={(e) => setSize(e.target.value)}
-                placeholder="Ví dụ:S, M, L"
-                className="mt-1 p-3 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-              />
-            </div> */}
 
             <div className="flex flex-col">
               <label htmlFor="categoryId" className="text-sm font-bold text-gray-700">
