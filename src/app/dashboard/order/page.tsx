@@ -11,7 +11,7 @@ const OrderTable = dynamic(() => import("@/components/orderManagement/OrderTable
   ssr: false,
 });
 
-const LineChartOne = dynamic(() => import("@/components/charts/line/LineChartOne"), {
+const LineChartOne = dynamic(() => import("@/components/charts/line/DailyChart"), {
   ssr: false,
 });
 
