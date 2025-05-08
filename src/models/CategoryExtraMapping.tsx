@@ -1,12 +1,9 @@
 interface categoryExtraMapping {
-    id: string;
-    mainCategoryId : string;
-    extraCategoryId : string;
-    isActive: boolean;
-    createdAt: string;
-    updatedAt: string;
-    deletedAt: string | null;
-    createdBy: string | null;
-    updatedBy: string | null;
-  }
-  
+  id: string;
+  mainCategoryId: string;
+  extraCategoryId: string;
+  mainCategoryName: string;
+  extraCategoryName: string;
+  mainCategoryDescription: string;
+  extraCategoryDescription: string;
+}
