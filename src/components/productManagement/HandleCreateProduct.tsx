@@ -4,11 +4,9 @@ import React, { useState, useEffect } from "react";
 export interface CreateProductPayload {
   productName: string;
   description: string;
-  // price: number;
   imageUrl: string;
-  // size: string;
   categoryId: string;
-  // createdBy: string;
+  // productType: "Main" | "Extra" | string;
 }
 
 interface HandleCreateProductProps {
