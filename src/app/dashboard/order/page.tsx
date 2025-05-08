@@ -39,10 +39,15 @@ export default function Home() {
     if (typeof window !== "undefined") {
       const userData = localStorage.getItem("user");
       if (!userData) {
-        router.replace("/");
+        router.replace("/"); 
       } else {
-        setUser(JSON.parse(userData));
-        setLoading(false);
+        const parsedUser = JSON.parse(userData);
+        if (parsedUser.role !== "Admin" && parsedUser.role !== "Manager") {
+          router.replace("/"); 
+        } else {
+          setUser(parsedUser);
+          setLoading(false);
+        }
       }
     }
 
@@ -59,20 +64,6 @@ export default function Home() {
         <LineChartOne />
         <BarChartOne />
       </div>
-
-      {/* OrderTable below charts */}
-
-    </div>
-    // <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
-    //   <h1>Doanh thu</h1>
-    //   <main className="flex flex-col gap-8 row-start-2 items-center sm:items-start">
-    //   <LineChartOne/>
-
-
-    //   </main>
-    //   <footer className="row-start-3 flex gap-6 flex-wrap items-center justify-center">
-    //   <BarChartOne/>
-    //   </footer>
-    // </div>
+  </div>
   );
 }

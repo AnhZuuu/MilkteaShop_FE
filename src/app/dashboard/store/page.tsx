@@ -10,15 +10,20 @@ export default function Home() {
   const [loading, setLoading] = useState(false);
   const [user, setUser] = useState(null);
 
-  // useEffect(() => {
-  //   const userData = localStorage.getItem("user");
-  //   if (!userData) {
-  //     router.replace("/"); 
-  //   } else {
-  //     setUser(JSON.parse(userData));
-  //     setLoading(false);
-  //   }
-  // }, []);
+  useEffect(() => {
+    const userData = localStorage.getItem("user");
+    if (!userData) {
+      router.replace("/"); 
+    } else {
+      const parsedUser = JSON.parse(userData);
+      if (parsedUser.role !== "Admin" && parsedUser.role !== "Manager") {
+        router.replace("/"); 
+      } else {
+        setUser(parsedUser);
+        setLoading(false);
+      }
+    }
+  }, []);
 
   if (loading) return <div>Loading...</div>;
   

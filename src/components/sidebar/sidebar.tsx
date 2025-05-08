@@ -40,8 +40,10 @@ export default function SideBar() {
     { href: "/dashboard/order", label: "Đơn hàng" },
     { href: "/dashboard/store", label: "Cửa hàng" },
     { href: "/dashboard/mapping", label: "Mapping" },
-    { href: "/dashboard/mapping2", label: "Mapping2" },
-    { href: "/dashboard/mapping2", label: "Doanh thu (chưa có)" }
+    { href: "/dashboard/combo", label: "Combo" },
+    // { href: "/dashboard/mapping2", label: "Mapping2" },
+    { href: "/dashboard/mapping2", label: "Doanh thu" },
+    { href: "/dashboard/voucher", label: "Voucher" }
 
   ];
 
@@ -53,7 +55,7 @@ export default function SideBar() {
     { href: "/dashboard/store", label: "Cửa hàng" },
     // { href: "/dashboard/mapping", label: "Quản lý Mapping" },
     // { href: "/dashboard/mapping2", label: "Quản lý Mapping2" },
-    { href: "/dashboard/mapping2", label: "Doanh thu (chưa có)" }
+    { href: "/dashboard/mapping2", label: "Doanh thu" }
 
   ];
 
