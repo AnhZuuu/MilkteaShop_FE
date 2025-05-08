@@ -1,25 +1,55 @@
-'use client';
-import UserTable from "@/components/usersManagement/UserTable";
+"use client";
+import Image from "next/image";
 import { useRouter } from "next/navigation";
-
+import dynamic from "next/dynamic";
 import { useEffect, useState } from "react";
+import ProductCarousel from "@/components/topSellingProducts/ProductCard";
+const OrderTable = dynamic(
+  () => import("@/components/orderManagement/OrderTable"),
+  {
+    ssr: false,
+  }
+);
 
-const adminPage = () => {
+const LineChartOne = dynamic(
+  () => import("@/components/charts/line/LineChartOne"),
+  {
+    ssr: false,
+  }
+);
+
+const BarChartOne = dynamic(
+  () => import("@/components/charts/bar/BarChartOne"),
+  {
+    ssr: false,
+  }
+);
+export default function Home() {
   const router = useRouter();
   const [loading, setLoading] = useState(true);
   const [user, setUser] = useState(null);
+  const [width, setWidth] = useState(0);
+  const [isMobile, setIsMobile] = useState(false);
 
   useEffect(() => {
-    const userData = localStorage.getItem("user");
-    if (!userData) {
-      router.replace("/"); 
-    } else {
-      const parsedUser = JSON.parse(userData);
-      if (parsedUser.role !== "Admin" && parsedUser.role !== "Manager") {
-        router.replace("/"); 
+    if (typeof window !== "undefined") {
+      setIsMobile(window.innerWidth < 768);
+    }
+  }, []);
+
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const userData = localStorage.getItem("user");
+      if (!userData) {
+        router.replace("/");
       } else {
-        setUser(parsedUser);
-        setLoading(false);
+        const parsedUser = JSON.parse(userData);
+        if (parsedUser.role !== "Admin" && parsedUser.role !== "Manager") {
+          router.replace("/");
+        } else {
+          setUser(parsedUser);
+          setLoading(false);
+        }
       }
     }
   }, []);
@@ -27,10 +57,20 @@ const adminPage = () => {
   if (loading) return <div>Loading...</div>;
 
   return (
-    <div className="space-y-6">
-      <UserTable />
+    <div className="p-6 sm:p-10 space-y-10 font-[family-name:var(--font-geist-sans)] bg-gray-100">
+      <h1 className="text-2xl font-bold text-center">Thống kê</h1>
+      <div className="p-6 bg-white rounded-lg shadow overflow-x-auto scrollbar-hidden">
+        <h1 className="text-2xl font-bold">Top 5 sản phẩm bán chạy</h1>
+        <ProductCarousel />
+      </div>
+      {/* Charts in one row */}
+      <h1 className="text-2xl font-bold">Doanh thu</h1>
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        <LineChartOne />
+        <BarChartOne />
+      </div>
+      <h1 className="text-2xl font-bold">Đơn hàng</h1>
+      <OrderTable />
     </div>
   );
-};
-
-export default adminPage;
+}
