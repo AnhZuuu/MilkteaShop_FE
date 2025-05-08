@@ -14,7 +14,7 @@ type ChartData = {
   total: number;
 };
 
-export default function LineChartFromAPI() {
+export default function DailyChart() {
   const [data, setData] = useState<ChartData[]>([]);
 
   useEffect(() => {

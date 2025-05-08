@@ -1,12 +1,11 @@
 "use client";
 
-import Image from "next/image";
-import LineChartOne from "@/components/charts/line/LineChartOne";
-import LineChartFromAPI2 from "@/components/charts/line/LineChartTwo";
-import BarChartOne from "@/components/charts/bar/BarChartOne";
+import DailyChart from "@/components/charts/line/DailyChart";
+import TimeChooseChart from "@/components/charts/line/TimeChooseChart";
+
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
-import OrderTable from "@/components/orderManagement/OrderTable";
+
 
 export default function Home() {
   const router = useRouter();
@@ -35,7 +34,6 @@ export default function Home() {
     <div className="flex flex-col items-center justify-center min-h-screen bg-gray-100">
       <h1 className="text-3xl font-semibold mb-6">Doanh thu</h1>
 
-      {/* Buttons to switch chart */}
       <div className="mb-6 flex space-x-4">
         <button
           onClick={() => setActiveChart("chart1")}
@@ -45,7 +43,7 @@ export default function Home() {
               : "bg-white text-gray-700 border"
           }`}
         >
-          Biểu đồ tổng hợp
+          Biểu đồ theo ngày
         </button>
         <button
           onClick={() => setActiveChart("chart2")}
@@ -55,12 +53,11 @@ export default function Home() {
               : "bg-white text-gray-700 border"
           }`}
         >
-          Biểu đồ hôm nay
+          Biểu đồ theo thời gian khác
         </button>
       </div>
 
-      {/* Conditional rendering of charts */}
-      {activeChart === "chart1" ? <LineChartOne /> : <LineChartFromAPI2 />}
+      {activeChart === "chart1" ? <DailyChart /> : <TimeChooseChart />}
     </div>
   );
 }

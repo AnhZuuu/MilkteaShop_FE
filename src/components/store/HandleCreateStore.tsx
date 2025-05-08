@@ -6,6 +6,7 @@ export interface CreateStorePayload {
   description: string;
   address: string;
   phoneNumber: string;
+  isActive: boolean;
 }
 
 interface HandleCreateStoreProps {
@@ -21,6 +22,7 @@ const HandleCreateStore: React.FC<HandleCreateStoreProps> = ({
   const [description, setDescription] = useState("");
   const [address, setAddress] = useState("");
   const [phoneNumber, setPhoneNumber] = useState("");
+  const [isActive, setIsActive] = useState(true);
   const [userInfo, setUserInfo] = useState<{ token: string } | null>(null);
 
   useEffect(() => {
@@ -44,6 +46,7 @@ const HandleCreateStore: React.FC<HandleCreateStoreProps> = ({
       description,
       address,
       phoneNumber,
+      isActive,
     };
 
     try {
@@ -55,21 +58,21 @@ const HandleCreateStore: React.FC<HandleCreateStoreProps> = ({
         },
         body: JSON.stringify(newStore),
       });
-      
+
       if (!res.ok) throw new Error("Lỗi tạo store");
-      
+
       let created = null;
       const contentType = res.headers.get("content-type");
-      
+
       if (contentType && contentType.includes("application/json")) {
         created = await res.json();
       }
-      
+
       onStoreCreated(created ?? {
         ...newStore,
         id: crypto.randomUUID(), // fallback dummy id
       });
-      
+
     } catch (error) {
       console.error("Lỗi khi tạo cửa hàng:", error);
     } finally {
@@ -78,6 +81,7 @@ const HandleCreateStore: React.FC<HandleCreateStoreProps> = ({
       setDescription("");
       setAddress("");
       setPhoneNumber("");
+      setIsActive(true);
     }
   };
 
@@ -129,6 +133,16 @@ const HandleCreateStore: React.FC<HandleCreateStoreProps> = ({
               className="w-full mt-1 p-3 border border-gray-300 rounded-md shadow-sm"
               placeholder="Ví dụ: 19001009"
             />
+          </div>
+
+          <div className="flex items-center">
+            <input
+              type="checkbox"
+              checked={isActive}
+              onChange={(e) => setIsActive(e.target.checked)}
+              className="mr-2"
+            />
+            <label className="text-sm text-gray-700">Kích hoạt cửa hàng</label>
           </div>
 
           <div className="flex justify-end space-x-4 pt-4">

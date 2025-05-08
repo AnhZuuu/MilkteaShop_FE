@@ -65,14 +65,14 @@ const StorePage: React.FC = () => {
     );
   };
 
-  const activeStores = stores.filter((store) => store.isActive !== false);
+  // const activeStores = stores.filter((store) => store.isActive !== false);
 
-  const filteredStores = activeStores.filter((store) => {
-    const query = searchQuery.toLowerCase();
+  const filteredStores = stores.filter((store) => {
+    const query = searchQuery;
     return (
-      store.storeName.toLowerCase().includes(query) ||
-      store.address.toLowerCase().includes(query) ||
-      store.phoneNumber.toLowerCase().includes(query)
+      store?.storeName?.includes(query) ||
+      store?.address?.includes(query) ||
+      store?.phoneNumber?.includes(query)
     );
   });
 
