@@ -1,5 +1,6 @@
 'use client';
-import CategoryTable from "@/components/categoryManagement/CategoryTable";
+// import CategoryTable from "@/components/categoryManagement/CategoryTable";
+import ComboTable from "@/components/combo/ComboTable";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
@@ -27,7 +28,7 @@ export default function Home() {
 
   return (
     <div className="flex flex-col items-center justify-center min-h-screen bg-gray-100">
-      <CategoryTable />
+      <ComboTable />
     </div>
   );
 }
