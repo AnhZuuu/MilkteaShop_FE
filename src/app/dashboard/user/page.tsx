@@ -1,9 +1,10 @@
 'use client';
-import ProductTable from "@/components/productManagement/ProductTable";
+import UserTable from "@/components/usersManagement/UserTable";
 import { useRouter } from "next/navigation";
+
 import { useEffect, useState } from "react";
 
-export default function Home() {
+const adminPage = () => {
   const router = useRouter();
   const [loading, setLoading] = useState(true);
   const [user, setUser] = useState(null);
@@ -26,9 +27,10 @@ export default function Home() {
   if (loading) return <div>Loading...</div>;
 
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen bg-gray-100">
-      <h1 className="text-3xl font-semibold mb-6"></h1>
-      <ProductTable userInfo={undefined}/>
+    <div className="space-y-6">
+      <UserTable />
     </div>
   );
-}
+};
+
+export default adminPage;

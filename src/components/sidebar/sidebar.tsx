@@ -33,7 +33,8 @@ export default function SideBar() {
   }, []);
 
   const links = [
-    { href: "/dashboard", label: "Người dùng" },
+    { href: "/dashboard", label: "Thống kê" },
+    { href: "/dashboard/user", label: "Người dùng" },
     { href: "/dashboard/category", label: "Loại sản phẩm" },
     { href: "/dashboard/product", label: "Sản phẩm" },
     { href: "/dashboard/productSize", label: "Giá sản phẩm" },
@@ -42,7 +43,8 @@ export default function SideBar() {
     { href: "/dashboard/mapping", label: "Mapping" },
     { href: "/dashboard/combo", label: "Combo" },
     // { href: "/dashboard/mapping2", label: "Mapping2" },
-    { href: "/dashboard/mapping2", label: "Doanh thu" }
+    { href: "/dashboard/mapping2", label: "Doanh thu" },
+    { href: "/dashboard/voucher", label: "Voucher" }
 
   ];
 

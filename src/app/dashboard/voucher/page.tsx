@@ -1,9 +1,9 @@
 'use client';
-import ProductTable from "@/components/productManagement/ProductTable";
+import VoucherCard from "@/components/voucherManagement/VoucherPage";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
-export default function Home() {
+export default function home() {
   const router = useRouter();
   const [loading, setLoading] = useState(true);
   const [user, setUser] = useState(null);
@@ -27,8 +27,7 @@ export default function Home() {
 
   return (
     <div className="flex flex-col items-center justify-center min-h-screen bg-gray-100">
-      <h1 className="text-3xl font-semibold mb-6"></h1>
-      <ProductTable userInfo={undefined}/>
+      <VoucherCard />
     </div>
   );
 }

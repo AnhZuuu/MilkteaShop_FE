@@ -1,13 +1,5 @@
 "use client";
-import React, { useState, useEffect } from "react";
-
-export interface CreateProductPayload {
-  productName: string;
-  description: string;
-  imageUrl: string;
-  categoryId: string;
-  productType: "Main" | "Extra";
-}
+import React, { useEffect, useState } from "react";
 
 interface HandleCreateProductProps {
   onClose: () => void;
@@ -25,48 +17,22 @@ const HandleCreateProduct: React.FC<HandleCreateProductProps> = ({
   const [imageUrl, setImageUrl] = useState("");
   const [categoryId, setCategoryId] = useState("");
   const [productType, setProductType] = useState<"Main" | "Extra">("Main");
-
-  const [priceS, setPriceS] = useState<number | null>(null);
-  const [priceM, setPriceM] = useState<number | null>(null);
-  const [priceL, setPriceL] = useState<number | null>(null);
-  const [extraPrice, setExtraPrice] = useState<number | null>(null);
-
   const [categories, setCategories] = useState<any[]>([]);
 
   useEffect(() => {
     const fetchCategories = async () => {
-      try {
-        const res = await fetch(
-          "https://milkteashop-fmcufmfkaja8d6ec.southeastasia-01.azurewebsites.net/api/Category",
-          {
-            headers: {
-              Authorization: `Bearer ${userInfo?.token}`,
-            },
-          }
-        );
-        if (!res.ok) throw new Error("Failed to fetch categories");
-        const data = await res.json();
-        setCategories(data || []);
-      } catch (error) {
-        console.error("Error fetching categories:", error);
-      }
+      const res = await fetch(
+        "https://milkteashop-fmcufmfkaja8d6ec.southeastasia-01.azurewebsites.net/api/Category",
+        { headers: { Authorization: `Bearer ${userInfo?.token}` } }
+      );
+      const data = await res.json();
+      setCategories(data || []);
     };
     fetchCategories();
   }, [userInfo?.token]);
 
   const handleSubmit = async () => {
     // e.preventDefault();
-
-    // if (!productName.trim() || !description.trim() || !imageUrl.trim() || !categoryId) return;
-
-    // const productPayload: CreateProductPayload = {
-    //   productName,
-    //   description,
-    //   imageUrl,
-    //   categoryId,
-    //   productType,
-    // };
-
     try {
       const res = await fetch(
         "https://milkteashop-fmcufmfkaja8d6ec.southeastasia-01.azurewebsites.net/api/Product",
@@ -76,218 +42,145 @@ const HandleCreateProduct: React.FC<HandleCreateProductProps> = ({
             "Content-Type": "application/json",
             Authorization: `Bearer ${userInfo?.token}`,
           },
-          // body: JSON.stringify(productPayload),
           body: JSON.stringify({
-            productName: productName,
-            description: description,
-            imageUrl: imageUrl,
-            categoryId: categoryId,
-            productType: productType
+            productName,
+            description,
+            imageUrl,
+            categoryId,
+            productType,
+            isActive: true,
           }),
-
         }
       );
 
-      if (!res.ok) throw new Error("Lỗi tạo sản phẩm");
-      console.log("product new created: " + res)
-
-      // const createdProduct = await res.json();
-      // const createdProduct = text.json();
       const text = await res.text();
-      const createdProduct = text ? JSON.parse(text) : null;
-
-      console.log("productid new created: " + createdProduct.id)
-      if (!createdProduct || !createdProduct.id) {
-        throw new Error("Không nhận được dữ liệu sản phẩm từ server.");
-      }
-
-      if (productType === "Main") {
-        const sizePayloads = [
-          { size: 0, price: priceS },
-          { size: 1, price: priceM },
-          { size: 2, price: priceL },
-        ];
-
-        for (const entry of sizePayloads) {
-          if (entry.price !== null) {
-            await fetch(
-              "https://milkteashop-fmcufmfkaja8d6ec.southeastasia-01.azurewebsites.net/api/ProductSize",
-              {
-                method: "POST",
-                headers: {
-                  "Content-Type": "application/json",
-                  Authorization: `Bearer ${userInfo?.token}`,
-                },
-                body: JSON.stringify({
-                  productId: createdProduct.id,
-                  productName: `${productName} size ${["S", "M", "L"][entry.size]}`,
-                  size: entry.size,
-                  price: entry.price,
-                }),
-              }
-            );
-          }
-        }
-        // } else if (extraPrice !== null) {
-      } else if (productType === "Extra") {
-        console.log("set gia cho san pham" + createdProduct.id)
-        await fetch(
-          "https://milkteashop-fmcufmfkaja8d6ec.southeastasia-01.azurewebsites.net/api/ProductSize",
-          {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-              Authorization: `Bearer ${userInfo?.token}`,
-            },
-            body: JSON.stringify({
-              productId: createdProduct.id,
-              productName: `${productName} (Topping)`,
-              size: -1,
-              price: extraPrice,
-            }),
-          }
-        );
-      }
-
-      onProductCreated(createdProduct);
-    } catch (error) {
-      console.error("Lỗi khi tạo sản phẩm hoặc giá:", error);
-    } finally {
+      const product = text ? JSON.parse(text) : null;
+      onProductCreated(product);
       onClose();
-      setProductName("");
-      setDescription("");
-      setImageUrl("");
-      setCategoryId("");
-      setProductType("Main");
-      setPriceS(null);
-      setPriceM(null);
-      setPriceL(null);
-      setExtraPrice(null);
+    } catch (err) {
+      console.error("Error creating product:", err);
     }
   };
 
   return (
+
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-      <div className="bg-white p-8 rounded-xl shadow-2xl max-w-xl w-full space-y-6">
-        <h2 className="text-2xl font-bold text-center">Tạo sản phẩm mới</h2>
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div>
-            <label className="block font-semibold mb-1">Tên sản phẩm *</label>
-            <input
-              type="text"
-              value={productName}
-              onChange={(e) => setProductName(e.target.value)}
-              className="w-full p-2 border rounded"
-              required
-            />
-          </div>
+      <div className="bg-white p-8 rounded-xl shadow-2xl max-w-lg w-full space-y-6">
+        <div className="text-center">
+          <h3 className="text-2xl font-semibold text-gray-800 mb-4">
+            Tạo mới sản phẩm
+          </h3>
+          <p className="text-gray-600 text-sm">
+            Nhập thông tin chi tiết để tạo một sản phẩm mới.
+          </p>
+        </div>
+        <form onSubmit={handleSubmit} className="space-y-6">
+          <div className="space-y-4">
+            <div className="flex flex-col">
+              <label
+                htmlFor="productName"
+                className="text-sm font-bold text-gray-700"
+              >
+                Tên sản phẩm <span className="text-red-500">*</span>
+              </label>
+              <input
+                type="text"
+                id="productName"
+                value={productName}
+                onChange={(e) => setProductName(e.target.value)}
+                placeholder="Ví dụ: Trà sữa matcha"
+                className="mt-1 p-3 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+              />
+            </div>
+            <div className="flex flex-col">
+              <label
+                htmlFor="description"
+                className="text-sm font-bold text-gray-700"
+              >
+                Mô tả
+              </label>
+              <input
+                type="text"
+                id="description"
+                value={description}
+                onChange={(e) => setDescription(e.target.value)}
+                placeholder="Mô tả sản phẩm"
+                className="mt-1 p-3 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+              />
+            </div>
 
-          <div>
-            <label className="block font-semibold mb-1">Mô tả</label>
-            <input
-              type="text"
-              value={description}
-              onChange={(e) => setDescription(e.target.value)}
-              className="w-full p-2 border rounded"
-            />
-          </div>
+            <div className="flex flex-col">
+              <label
+                htmlFor="imageUrl"
+                className="text-sm font-bold text-gray-700"
+              >
+                Ảnh URL
+              </label>
+              <input
+                type="text"
+                id="imageUrl"
+                value={imageUrl}
+                onChange={(e) => setImageUrl(e.target.value)}
+                placeholder="Link hình ảnh sản phẩm"
+                className="mt-1 p-3 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+              />
+            </div>
 
-          <div>
-            <label className="block font-semibold mb-1">Ảnh (URL)</label>
-            <input
-              type="text"
-              value={imageUrl}
-              onChange={(e) => setImageUrl(e.target.value)}
-              className="w-full p-2 border rounded"
-              placeholder="https://..."
-            />
-          </div>
-
-          <div>
-            <label className="block font-semibold mb-1">Loại sản phẩm *</label>
-            <select
-              value={categoryId}
-              onChange={(e) => setCategoryId(e.target.value)}
-              className="w-full p-2 border rounded"
-              required
-            >
-              <option value="">-- Chọn loại --</option>
-              {Array.isArray(categories) &&
-                categories.map((cat) => (
+            <div className="flex flex-col">
+              <label
+                htmlFor="categoryId"
+                className="text-sm font-bold text-gray-700"
+              >
+                Phân loại sản phẩm <span className="text-red-500">*</span>
+              </label>
+              <select
+                id="categoryId"
+                value={categoryId}
+                onChange={(e) => setCategoryId(e.target.value)}
+                className="mt-1 p-3 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+              >
+                <option value="">Chọn phân loại sản phẩm</option>
+                {categories.map((cat) => (
                   <option key={cat.id} value={cat.id}>
                     {cat.categoryName}
                   </option>
                 ))}
-            </select>
-          </div>
-
-          <div>
-            <label className="block font-semibold mb-1">Loại (Main hoặc Extra)</label>
-            <select
-              value={productType}
-              onChange={(e) => setProductType(e.target.value as "Main" | "Extra")}
-              className="w-full p-2 border rounded"
-            >
-              <option value="Main">Main</option>
-              <option value="Extra">Extra</option>
-            </select>
-          </div>
-
-          {productType === "Main" ? (
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-              <div>
-                <label className="block font-medium">Giá size S</label>
-                <input
-                  type="number"
-                  value={priceS ?? ""}
-                  onChange={(e) => setPriceS(e.target.value ? Number(e.target.value) : null)}
-                  className="w-full p-2 border rounded"
-                />
-              </div>
-              <div>
-                <label className="block font-medium">Giá size M</label>
-                <input
-                  type="number"
-                  value={priceM ?? ""}
-                  onChange={(e) => setPriceM(e.target.value ? Number(e.target.value) : null)}
-                  className="w-full p-2 border rounded"
-                />
-              </div>
-              <div>
-                <label className="block font-medium">Giá size L</label>
-                <input
-                  type="number"
-                  value={priceL ?? ""}
-                  onChange={(e) => setPriceL(e.target.value ? Number(e.target.value) : null)}
-                  className="w-full p-2 border rounded"
-                />
-              </div>
+              </select>
             </div>
-          ) : (
-            <div>
-              <label className="block font-medium">Giá topping</label>
-              <input
-                type="number"
-                value={extraPrice ?? ""}
-                onChange={(e) => setExtraPrice(e.target.value ? Number(e.target.value) : null)}
-                className="w-full p-2 border rounded"
-              />
+            <div className="flex flex-col">
+              <label
+                htmlFor="productType"
+                className="text-sm font-bold text-gray-700"
+              >
+                Loại sản phẩm <span className="text-red-500">*</span>
+              </label>
+              <select
+                id="productType"
+                value={productType}
+                onChange={(e) =>
+                  setProductType(e.target.value as "Main" | "Extra")
+                }
+                className="mt-1 p-3 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+              >
+                <option value="">Chọn loại sản phẩm</option>
+                <option value="Main">Main</option>
+                <option value="Extra">Extra</option>
+              </select>
             </div>
-          )}
-
-          <div className="flex justify-end space-x-4 pt-4">
+          </div>
+          <div className="flex justify-end space-x-4">
             <button
               type="button"
               onClick={onClose}
-              className="px-4 py-2 bg-gray-300 text-gray-800 rounded hover:bg-gray-400"
+              className="px-6 py-3 text-sm font-medium text-gray-700 bg-gray-200 rounded-md hover:bg-gray-300 transition-colors duration-200"
             >
               Hủy
             </button>
             <button
               type="submit"
-              className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+              className="px-6 py-3 text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700 transition-colors duration-200"
             >
-              Tạo sản phẩm
+              Tạo
             </button>
           </div>
         </form>
