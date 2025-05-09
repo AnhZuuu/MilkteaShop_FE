@@ -22,9 +22,9 @@ const OrderDetailPage = () => {
     Cancelled: "bg-red-200 text-red-800",
   };
   const statusMap: { [key: string]: string } = {
-    "Processing": "Đang xử lý",
-    "Completed": "Hoàn thành",
-    "Cancelled": "Đã hủy",
+    Processing: "Đang xử lý",
+    Completed: "Hoàn thành",
+    Cancelled: "Đã hủy",
   };
 
   useEffect(() => {
@@ -33,12 +33,8 @@ const OrderDetailPage = () => {
       router.replace("/");
     } else {
       const parsedUser = JSON.parse(userData);
-      if (parsedUser.role !== "Admin" && parsedUser.role !== "Manager") {
-        router.replace("/");
-      } else {
-        setUser(parsedUser);
-        setLoading(false);
-      }
+      setUser(parsedUser);
+      setLoading(false);
     }
 
     const fetchOrder = async () => {
