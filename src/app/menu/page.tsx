@@ -15,15 +15,21 @@ const MenuPage: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const router = useRouter();
   const [loading, setLoading] = useState(true);
-  const [user, setUser] = useState(null);
+  const [user, setUser] = useState<User | null>(null);
 
   useEffect(() => {
     const userData = localStorage.getItem("user");
     if (!userData) {
-      router.replace("/"); 
+      router.replace("/");
     } else {
-      setUser(JSON.parse(userData));
-      setLoading(false);
+      try {
+        const parsedUser = JSON.parse(userData);
+        console.log("userInfo:", parsedUser);
+        setUser(parsedUser);
+      } catch (e) {
+        console.error("Failed to parse user data:", e);
+        router.replace("/");
+      }
     }
 
     const fetchProducts = async () => {
@@ -109,6 +115,7 @@ const MenuPage: React.FC = () => {
             // <OrderSummary cart={cart} onConfirmOrder={handleConfirmOrder} />
             <OrderSummary
               cart={cart}
+              userInfo={user}
               onConfirmOrder={handleConfirmOrder}
               setIsCheckout={setIsCheckout}
               products={products}

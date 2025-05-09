@@ -1,8 +1,15 @@
+import {
+  Combobox,
+  ComboboxInput,
+  ComboboxOption,
+  ComboboxOptions,
+} from "@headlessui/react";
 import { useRouter } from "next/navigation";
 import React, { useState } from "react";
 
 interface OrderSummaryProps {
   cart: OrderItem[];
+  userInfo: User | null;
   onConfirmOrder: (order: any) => void;
   setIsCheckout: (val: boolean) => void;
   products: Product[];
@@ -11,21 +18,35 @@ interface OrderSummaryProps {
 
 const OrderSummary: React.FC<OrderSummaryProps> = ({
   cart,
+  userInfo,
   onConfirmOrder,
   setIsCheckout,
   products,
   productSizes,
 }) => {
-  const [selectedPaymentMethod, setSelectedPaymentMethod] = useState<number | undefined>();
+  const [selectedPaymentMethod, setSelectedPaymentMethod] = useState<
+    number | undefined
+  >();
   const [showConfirmPopup, setShowConfirmPopup] = useState(false);
   const [orderStatus, setOrderStatus] = useState<string | null>(null);
   const router = useRouter();
+  const [selectedVoucher, setSelectedVoucher] = useState<Voucher | null>(null);
+  const [vouchers, setVouchers] = useState<Voucher[]>([]);
+  const [voucherId, setVoucherId] = useState<string | null>(null);
+  const [query, setQuery] = useState("");
 
   const sizeMap: { [key: number]: string } = { 0: "S", 1: "M", 2: "L" };
   const paymentMethods = [
     { value: 0, label: "Momo" },
     { value: 1, label: "Tiền mặt" },
   ];
+
+  const filteredVoucher =
+    query === ""
+      ? vouchers
+      : vouchers.filter(
+          (vou) => vou.voucherCode.toLowerCase() === query.toLowerCase()
+        );
 
   const getProductDetails = (item: OrderItem) => {
     const sizeInfo = productSizes.find((ps) => ps.id === item.productSizeId);
@@ -46,6 +67,11 @@ const OrderSummary: React.FC<OrderSummaryProps> = ({
     );
     return sum + (item.price + toppingsPrice) * item.quantity;
   }, 0);
+
+  const discountAmount = voucherId
+    ? Math.floor((totalPrice * (selectedVoucher?.discountPercentage || 0)) / 100)
+    : 0;
+  const finalPrice = totalPrice - discountAmount;
 
   const handleConfirmOrder = () => {
     if (selectedPaymentMethod === undefined) {
@@ -69,23 +95,27 @@ const OrderSummary: React.FC<OrderSummaryProps> = ({
   const finalizeOrder = async () => {
     try {
       // Step 1: Create the order
-      const orderRes = await fetch("https://milkteashop-fmcufmfkaja8d6ec.southeastasia-01.azurewebsites.net/api/Order", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({  
-          description: "",
-          paymentMethod: selectedPaymentMethod,
-          userId: "d4bff976-ae9e-48a3-88f3-08dd8abc31e4",
-          storeId: "246f1b26-538e-43f5-ab34-08dd892d4d8b"
-        }),
-      });
+      const orderRes = await fetch(
+        "https://milkteashop-fmcufmfkaja8d6ec.southeastasia-01.azurewebsites.net/api/Order",
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            description: "",
+            paymentMethod: selectedPaymentMethod,
+            userId: userInfo?.id,
+            storeId: userInfo?.storeId,
+            orderStatus: "Processing",
+          }),
+        }
+      );
 
       if (!orderRes.ok) throw new Error("Tạo đơn hàng thất bại!");
 
       const newOrder = await orderRes.json();
 
-      console.log("newOrder: " + newOrder)
-      console.log("newOrder: " + newOrder.id)
+      console.log("newOrder: " + newOrder);
+      console.log("newOrder: " + newOrder.id);
 
       // Step 2: Create OrderItems
       for (const item of cart) {
@@ -110,20 +140,42 @@ const OrderSummary: React.FC<OrderSummaryProps> = ({
           // toppingItems: item.toppings ? item.toppings.map((t) => t.id) : []
         };
 
-        const itemRes = await fetch("https://milkteashop-fmcufmfkaja8d6ec.southeastasia-01.azurewebsites.net/api/OrderItem", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(orderItem),
-        });
-        console.log("productSizeId: " + orderItem.productSizeId)
-        console.log("toppings: " + orderItem.toppingItems)
-        console.log("quantity: " + orderItem.quantity)
-
+        const itemRes = await fetch(
+          "https://milkteashop-fmcufmfkaja8d6ec.southeastasia-01.azurewebsites.net/api/OrderItem",
+          {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(orderItem),
+          }
+        );
+        console.log("productSizeId: " + orderItem.productSizeId);
+        console.log("toppings: " + orderItem.toppingItems);
+        console.log("quantity: " + orderItem.quantity);
 
         if (!itemRes.ok) throw new Error("Tạo OrderItem thất bại!");
       }
 
-      // Step 3: Redirect
+      // Step 3: Apply voucher (if have)
+      if (voucherId) {
+        const voucherRes = await fetch(
+          `https://milkteashop-fmcufmfkaja8d6ec.southeastasia-01.azurewebsites.net/api/Order/apply-voucher`,
+          {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              orderId: newOrder.id,
+              voucherId: voucherId,
+            }),
+          }
+        );
+
+        if (!voucherRes.ok) {
+          setOrderStatus("⚠️ Áp dụng voucher thất bại!");
+          return;
+        }
+      }
+
+      // Step 4: Redirect
       setOrderStatus("Tạo đơn hàng thành công.");
       router.push(`/bill?orderId=${newOrder.id}`);
 
@@ -134,9 +186,25 @@ const OrderSummary: React.FC<OrderSummaryProps> = ({
     }
   };
 
+  useState(() => {
+    const fetchVouchers = async () => {
+      try {
+        const res = await fetch(
+          "https://milkteashop-fmcufmfkaja8d6ec.southeastasia-01.azurewebsites.net/api/Voucher"
+        );
+        const data = await res.json();
+        setVouchers(data);
+      } catch (err) {
+        console.error("Failed to fetch vouchers", err);
+      }
+    };
+
+    fetchVouchers();
+  });
+
   return (
     <div className="p-6 bg-[#1c2c4a] rounded-lg text-white max-w-lg mx-auto">
-      <h2 className="text-2xl font-bold mb-4">🛍️ Dơn hàng</h2>
+      <h2 className="text-2xl font-bold mb-4">🛍️ Đơn hàng</h2>
 
       <div>
         <h3 className="font-semibold">Mặt hàng</h3>
@@ -177,7 +245,9 @@ const OrderSummary: React.FC<OrderSummaryProps> = ({
                 type="radio"
                 name="paymentMethod"
                 value={method.value}
-                onChange={(e) => setSelectedPaymentMethod(Number(e.target.value))}
+                onChange={(e) =>
+                  setSelectedPaymentMethod(Number(e.target.value))
+                }
                 checked={selectedPaymentMethod === method.value}
               />
               <span>{method.label}</span>
@@ -186,10 +256,60 @@ const OrderSummary: React.FC<OrderSummaryProps> = ({
         </div>
       </div>
 
+      <div className="border-t border-gray-600 mt-4 pt-4">
+        <h3 className="font-semibold">Chọn voucher</h3>
+        <div className="space-y-2">
+          {/* <Combobox value={voucherId} onChange={setVoucherId}> */}
+          <Combobox value={voucherId} onChange={(id) => {
+              setVoucherId(id);
+              const selected = vouchers.find((v) => v.id === id);
+              setSelectedVoucher(selected || null);
+            }}>
+            <div className="relative">
+              <ComboboxInput
+                onChange={(e) => setQuery(e.target.value)}
+                displayValue={(id: string) =>
+                  vouchers.find((v) => v.id === id)?.voucherCode || ""
+                }
+                className="w-full border p-2 rounded-md text-black"
+                placeholder="Nhập mã giảm giá..."
+              />
+              <ComboboxOptions className="absolute z-10 mt-1 max-h-60 w-full overflow-auto rounded-md bg-white border shadow">
+                {filteredVoucher.map((vou) => (
+                  <ComboboxOption
+                    key={vou.id}
+                    value={vou.id}
+                    className={({ active }) =>
+                      `cursor-pointer px-4 py-2 text-black ${
+                        active ? "bg-green-200" : "bg-white"
+                      }`
+                    }
+                  >
+                    {vou.voucherCode}
+                  </ComboboxOption>
+                ))}
+              </ComboboxOptions>
+            </div>
+          </Combobox>
+        </div>
+      </div>
+
       <div className="mt-6 border-t border-gray-600 pt-4 text-sm">
         <p className="font-bold text-white">
           Tổng tiền: {totalPrice.toLocaleString()}₫
         </p>
+
+        {selectedVoucher && (
+          <>
+            <p className="text-green-400">
+              Giảm được: {discountAmount.toLocaleString()}₫
+            </p>
+            <p className="text-md text-yellow-300 font-semibold">
+              Tiền sau khi giảm: {finalPrice.toLocaleString()}₫
+            </p>
+          </>
+        )}
+
         <button
           onClick={handleConfirmOrder}
           className="w-full bg-green-600 hover:bg-green-700 text-white py-2 rounded-xl mt-4"
