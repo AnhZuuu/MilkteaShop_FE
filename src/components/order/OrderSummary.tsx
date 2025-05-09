@@ -41,7 +41,7 @@ const OrderSummary: React.FC<OrderSummaryProps> = ({
 
   const totalPrice = cart.reduce((sum, item) => {
     const toppingsPrice = (item.toppings ?? []).reduce(
-      (tSum, topping: any) => tSum + topping.productSizes[0].price,
+      (tSum, topping: any) => tSum + (topping.productSizes[0]?.price ?? 0),
       0
     );
     return sum + (item.price + toppingsPrice) * item.quantity;
@@ -89,12 +89,25 @@ const OrderSummary: React.FC<OrderSummaryProps> = ({
 
       // Step 2: Create OrderItems
       for (const item of cart) {
+        const toppingItems: string[] = [];
+
+        if (item.toppings) {
+          for (const topping of item.toppings) {
+            const toppingId = topping.productSizes[0]?.id;
+            if (!toppingId) {
+              setOrderStatus("❌ Sản phẩm đi kèm chưa được set giá.");
+              return;
+            }
+            toppingItems.push(toppingId);
+          }
+        }
+
         const orderItem = {
           orderId: newOrder.id,
           productSizeId: item.productSizeId,
-          quantity: item.quantity,    
-          toppingItems: item.toppings ? item.toppings.map((t) => t.productSizes[0].id) : []    
-          // toppingItems: item.toppings ? item.toppings.map((t) => t.id) : []  
+          quantity: item.quantity,
+          toppingItems: toppingItems,
+          // toppingItems: item.toppings ? item.toppings.map((t) => t.id) : []
         };
 
         const itemRes = await fetch("https://milkteashop-fmcufmfkaja8d6ec.southeastasia-01.azurewebsites.net/api/OrderItem", {
@@ -145,7 +158,7 @@ const OrderSummary: React.FC<OrderSummaryProps> = ({
                   {item.toppings.map((topping, i: any) => (
                     <p key={i}>
                       - {topping.productName} (
-                      {topping.productSizes[0].price.toLocaleString()}₫)
+                      {topping.productSizes[0]?.price.toLocaleString() ?? 0}₫)
                     </p>
                   ))}
                 </div>
@@ -195,7 +208,7 @@ const OrderSummary: React.FC<OrderSummaryProps> = ({
         <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
           <div className="bg-white text-black p-6 rounded shadow-lg">
             <img
-              src="/logo.png"
+              src="/qr.jpeg"
               alt={"QR"}
               className="mx-auto"
               width={400}

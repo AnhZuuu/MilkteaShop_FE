@@ -10,6 +10,7 @@ import {
 } from "react-icons/fa";
 import HandleCreateStore from "./HandleCreateStore";
 import HandleUpdateStore from "./HandleUpdateStore";
+import Link from "next/link";
 
 type Store = {
   id: string;
@@ -27,6 +28,7 @@ const StorePage: React.FC = () => {
   const [showCreateModal, setShowCreateModal] = useState<boolean>(false);
   const [showUpdateModal, setShowUpdateModal] = useState<boolean>(false);
   const [editingStore, setEditingStore] = useState<Store | null>(null);
+  const [searchQuery, setSearchQuery] = useState<string>("");
 
   const userInfo = {
     userId: "admin-user",
@@ -63,7 +65,16 @@ const StorePage: React.FC = () => {
     );
   };
 
-  const activeStores = stores.filter((store) => store.isActive !== false);
+  // const activeStores = stores.filter((store) => store.isActive !== false);
+
+  const filteredStores = stores.filter((store) => {
+    const query = searchQuery;
+    return (
+      store?.storeName?.includes(query) ||
+      store?.address?.includes(query) ||
+      store?.phoneNumber?.includes(query)
+    );
+  });
 
   return (
     <div className="container mx-auto px-4 py-8">
@@ -77,11 +88,22 @@ const StorePage: React.FC = () => {
         </button>
       </div>
 
+      {/* Search Input */}
+      <div className="mb-6">
+        <input
+          type="text"
+          placeholder="Tìm cửa hàng theo tên, địa chỉ hoặc số điện thoại..."
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+          className="w-full md:w-1/2 px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+        />
+      </div>
+
       {loading && <p className="text-center text-gray-600">Đang tải cửa hàng...</p>}
       {error && <p className="text-center text-red-600">Lỗi: {error}</p>}
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-        {activeStores.map((store) => (
+        {filteredStores.map((store) => (
           <div
             key={store.id}
             className="bg-white rounded-lg overflow-hidden shadow-lg transform transition-transform duration-300 hover:scale-105 relative"
@@ -119,22 +141,23 @@ const StorePage: React.FC = () => {
                 </div>
 
                 <div className="flex items-center">
-                  <FaClock className="text-gray-500 mr-2" />
                   <span
-                    className={`ml-3 text-sm font-medium px-2 py-0.5 rounded-full ${
-                      store.isActive
+                    className={`ml-3 text-sm font-medium px-2 py-0.5 rounded-full ${store.isActive
                         ? "bg-green-100 text-green-700 animate-heartBeat"
                         : "bg-gray-200 text-gray-500"
-                    }`}
+                      }`}
                   >
                     {store.isActive ? "Đang hoạt động" : "Đã đóng cửa"}
                   </span>
                 </div>
               </div>
 
-              <button className="mt-6 w-full bg-blue-500 text-white py-2 px-4 rounded-lg hover:bg-red-600 transition-colors duration-300">
-                Xem chi tiết
-              </button>
+              <Link href={`/dashboard/store/${store.id}`}>
+                <button className="mt-6 w-full bg-blue-500 text-white py-2 px-4 rounded-lg hover:bg-red-600 transition-colors duration-300">
+                  Xem chi tiết
+                </button>
+              </Link>
+
             </div>
           </div>
         ))}
@@ -144,7 +167,6 @@ const StorePage: React.FC = () => {
       {showCreateModal && (
         <HandleCreateStore
           onClose={() => setShowCreateModal(false)}
-          // userInfo={userInfo}
           onStoreCreated={handleStoreCreated}
         />
       )}

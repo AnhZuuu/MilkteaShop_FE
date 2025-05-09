@@ -1,4 +1,3 @@
-// components/HandleCreateProductSize.tsx
 'use client';
 
 import React, { useEffect, useState } from 'react';
@@ -11,6 +10,7 @@ type Product = {
 
 type ProductSizePayload = {
   productId: string;
+  productName: string; 
   size: 0 | 1 | 2;
   price: number;
 };
@@ -25,6 +25,7 @@ export default function HandleCreateProductSize({
   const [products, setProducts] = useState<Product[]>([]);
   const [formData, setFormData] = useState<ProductSizePayload>({
     productId: '',
+    productName: '',
     size: 0,
     price: 0,
   });
@@ -32,41 +33,61 @@ export default function HandleCreateProductSize({
 
   useEffect(() => {
     const fetchProducts = async () => {
-      const res = await fetch('https://milkteashop-fmcufmfkaja8d6ec.southeastasia-01.azurewebsites.net/api/Product');
-      // const data = await res.json();
-      const productsData: Product[] = await res.json();
-            const mainProducts = productsData.filter(
-                (product) => product.productType === 'Main'
-              );
-      setProducts(mainProducts);
+      try {
+        const res = await fetch(
+          'https://milkteashop-fmcufmfkaja8d6ec.southeastasia-01.azurewebsites.net/api/Product'
+        );
+        const data: Product[] = await res.json();
+        const mainProducts = data.filter(p => p.productType === 'Main');
+        setProducts(mainProducts);
+      } catch (err) {
+        console.error('Failed to fetch products:', err);
+      }
     };
     fetchProducts();
   }, []);
 
+  // Ensure productName is updated when productId or size changes
+  useEffect(() => {
+    const product = products.find(p => p.id === formData.productId);
+    if (product) {
+      const fullName = `${product.productName} size ${SIZE_LABELS[formData.size]}`;
+      setFormData(prev => ({ ...prev, productName: fullName }));
+    } else {
+      setFormData(prev => ({ ...prev, productName: '' }));
+    }
+  }, [formData.productId, formData.size, products]);
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    const res = await fetch('https://milkteashop-fmcufmfkaja8d6ec.southeastasia-01.azurewebsites.net/api/ProductSize', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(formData),
-    });
+    try {
+      const res = await fetch(
+        'https://milkteashop-fmcufmfkaja8d6ec.southeastasia-01.azurewebsites.net/api/ProductSize',
+        {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(formData), // 👈 includes productName
+        }
+      );
 
-    if (res.ok) {
-      setMessage('Created successfully!');
-      setFormData({ productId: '', size: 0, price: 0 });
-      onSuccess?.();
-    } else {
-      setMessage('Failed to create.');
+      if (res.ok) {
+        setMessage('✅ Tạo thành công!');
+        setFormData({ productId: '', productName: '', size: 0, price: 0 });
+        onSuccess?.();
+      } else {
+        setMessage('❌ Tạo thất bại.');
+      }
+    } catch (err) {
+      console.error('Submit error:', err);
+      setMessage('❌ Lỗi kết nối.');
     }
   };
 
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
       <div>
-        <label className="block mb-1 font-medium">Sản phẩm nào</label>
+        <label className="block mb-1 font-medium">Sản phẩm</label>
         <select
           className="w-full border rounded p-2"
           value={formData.productId}
@@ -75,10 +96,10 @@ export default function HandleCreateProductSize({
           }
           required
         >
-          <option value="">Chọn sản phẩm</option>
-          {products.map((product) => (
-            <option key={product.id} value={product.id}>
-              {product.productName}
+          <option value="">-- Chọn sản phẩm --</option>
+          {products.map((p) => (
+            <option key={p.id} value={p.id}>
+              {p.productName}
             </option>
           ))}
         </select>
@@ -97,8 +118,8 @@ export default function HandleCreateProductSize({
           }
           required
         >
-          {SIZE_LABELS.map((label, index) => (
-            <option key={index} value={index}>
+          {SIZE_LABELS.map((label, idx) => (
+            <option key={idx} value={idx}>
               {label}
             </option>
           ))}
@@ -106,7 +127,7 @@ export default function HandleCreateProductSize({
       </div>
 
       <div>
-        <label className="block mb-1 font-medium">Giá (đ)</label>
+        <label className="block mb-1 font-medium">Giá (VNĐ)</label>
         <input
           type="number"
           className="w-full border rounded p-2"
@@ -115,10 +136,16 @@ export default function HandleCreateProductSize({
             setFormData({ ...formData, price: parseFloat(e.target.value) })
           }
           min={0}
-          step={0.01}
+          step={1000}
           required
         />
       </div>
+
+      {formData.productName && (
+        <div className="text-sm text-gray-600">
+          <strong>Tên đầy đủ:</strong> {formData.productName}
+        </div>
+      )}
 
       {message && <p className="text-sm text-blue-600">{message}</p>}
 
@@ -126,7 +153,7 @@ export default function HandleCreateProductSize({
         type="submit"
         className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
       >
-        Create
+        Tạo
       </button>
     </form>
   );
