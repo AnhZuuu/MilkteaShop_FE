@@ -98,6 +98,13 @@ export default function StoreDetailPage({ params }: { params: { id: string } }) 
               </>
             )}
           </div>
+
+          <div className="flex items-center gap-2">
+            💰
+            <span className="text-gray-700">
+              Tiền mặt tại cửa hàng: {store.cashBalance}
+            </span>
+          </div>
         </div>
 
         {/* Tabs */}

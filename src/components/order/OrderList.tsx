@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 
 interface Props {
   orders: Order[];
+  storeId: string;
   setOrders: (updatedOrder: any) => void;
 }
 
@@ -14,10 +15,11 @@ const paymentMethodMap: Record<number, string> = {
   1: "Tiền mặt",
 };
 
-const OrderList: React.FC<Props> = ({ orders, setOrders }) => {
+const OrderList: React.FC<Props> = ({ orders, setOrders, storeId }) => {
   // const [orders, setOrders] = useState<Order[]>([]);
   const [users, setUsers] = useState<User[]>([]);
-  const [store, setStore] = useState<Store[]>([]);
+  // const [store, setStore] = useState<Store[]>([]);
+  const [storeFilter, setStoreFilter] = useState("all");
   const [searchTerm, setSearchTerm] = useState("");
   const [paymentFilter, setPaymentFilter] = useState("all");
   const [currentPage, setCurrentPage] = useState(1);
@@ -49,22 +51,25 @@ const OrderList: React.FC<Props> = ({ orders, setOrders }) => {
       }
     };
 
-    const fetchStores = async () => {
-      try {
-        const response = await fetch(
-          "https://milkteashop-fmcufmfkaja8d6ec.southeastasia-01.azurewebsites.net/api/Store"
-        );
-        const dataStores: Store[] = await response.json();
-        console.log("Fetched Stores:", dataStores);
-        setStore(dataStores);
-      } catch (error) {
-        console.log("Error fetching stores:", error);
-      }
-    };
-
     fetchUsers();
-    fetchStores();
   }, []);
+
+  // useEffect (() => {
+  //   const fetchStores = async () => {
+  //     try {
+  //       const response = await fetch(
+  //         "https://milkteashop-fmcufmfkaja8d6ec.southeastasia-01.azurewebsites.net/api/Store"
+  //       );
+  //       const dataStores: Store[] = await response.json();
+  //       console.log("Fetched Stores:", dataStores);
+  //       setStore(dataStores);
+  //     } catch (error) {
+  //       console.log("Error fetching stores:", error);
+  //     }
+  //   };
+
+  //   fetchStores();
+  // }, [users])
 
   const filteredOrders = useMemo(() => {
     return orders.filter((order) => {
@@ -76,9 +81,11 @@ const OrderList: React.FC<Props> = ({ orders, setOrders }) => {
         paymentFilter === "all" ||
         paymentMethodMap[order.paymentMethod] === paymentFilter;
 
-      return matchesSearch && matchesPayment;
+      const matchesStore =
+        storeFilter === "all" || order.storeId === storeId;
+      return matchesSearch && matchesPayment && matchesStore;
     });
-  }, [orders, searchTerm, paymentFilter]);
+  }, [orders, searchTerm, paymentFilter, storeFilter]);
 
   const paginatedOrders = useMemo(() => {
     const start = (currentPage - 1) * pageSize;
@@ -198,9 +205,9 @@ const OrderList: React.FC<Props> = ({ orders, setOrders }) => {
               <td className="border border-gray-300 px-4 py-2">
                 {users.find((user) => user.id === order.userId)?.username || ""}
               </td>
-              <td className="border border-gray-300 px-4 py-2">
+              {/* <td className="border border-gray-300 px-4 py-2">
                 {store.find((s) => s.id === order.storeId)?.storeName || ""}
-              </td>
+              </td> */}
               <td className="border border-gray-300 px-4 py-2">
                 <div>{format(order.createdAt, "MMM dd, yyyy")}</div>
               </td>

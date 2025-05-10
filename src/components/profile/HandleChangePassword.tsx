@@ -28,8 +28,8 @@ export const ChangePasswordModal: React.FC<ChangePasswordModalProps> = ({
 
     const updatedUser = {
       ...user,
-      newPassword,
-      updatedAt: new Date().toISOString(),
+      role: Number(user.role),
+      passwordHash : newPassword
     };
 
     try {
@@ -46,7 +46,7 @@ export const ChangePasswordModal: React.FC<ChangePasswordModalProps> = ({
 
       if (!response.ok) {
         const errorText = await response.text();
-        setError(`Đổi mật khẩu thất bại: ${errorText}`);
+        setError(`Đổi mật khẩu thất bại. Vui lòng kiểm tra lại`);
         return;
       }
 

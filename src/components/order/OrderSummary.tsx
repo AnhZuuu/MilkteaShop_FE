@@ -68,10 +68,26 @@ const OrderSummary: React.FC<OrderSummaryProps> = ({
     return sum + (item.price + toppingsPrice) * item.quantity;
   }, 0);
 
-  const discountAmount = voucherId
-    ? Math.floor((totalPrice * (selectedVoucher?.discountPercentage || 0)) / 100)
-    : 0;
-  const finalPrice = totalPrice - discountAmount;
+  // const discountAmount = voucherId
+  //   ? Math.floor(
+  //       (totalPrice * (selectedVoucher?.discountPercentage || 0)) / 100
+  //     )
+  //   : 0;
+
+  const checkVoucher = (selectedVoucher: Voucher) => {
+    if (selectedVoucher?.priceCondition > totalPrice) {
+      alert("Đơn hàng không đủ điều kiện để áp dụng voucher này");
+      return;
+    } else if (selectedVoucher.isActive === false) {
+      alert("Voucher đã hết hạn sử dụng");
+      return;
+    } else {
+      const discountAmount =
+        (totalPrice * selectedVoucher.discountPercentage) / 100;
+      const finalPrice = totalPrice - discountAmount;
+      return { discountAmount, finalPrice };
+    }
+  };
 
   const handleConfirmOrder = () => {
     if (selectedPaymentMethod === undefined) {
@@ -260,11 +276,14 @@ const OrderSummary: React.FC<OrderSummaryProps> = ({
         <h3 className="font-semibold">Chọn voucher</h3>
         <div className="space-y-2">
           {/* <Combobox value={voucherId} onChange={setVoucherId}> */}
-          <Combobox value={voucherId} onChange={(id) => {
+          <Combobox
+            value={voucherId}
+            onChange={(id) => {
               setVoucherId(id);
               const selected = vouchers.find((v) => v.id === id);
               setSelectedVoucher(selected || null);
-            }}>
+            }}
+          >
             <div className="relative">
               <ComboboxInput
                 onChange={(e) => setQuery(e.target.value)}
@@ -299,7 +318,7 @@ const OrderSummary: React.FC<OrderSummaryProps> = ({
           Tổng tiền: {totalPrice.toLocaleString()}₫
         </p>
 
-        {selectedVoucher && (
+        {/* {selectedVoucher && (
           <>
             <p className="text-green-400">
               Giảm được: {discountAmount.toLocaleString()}₫
@@ -308,7 +327,22 @@ const OrderSummary: React.FC<OrderSummaryProps> = ({
               Tiền sau khi giảm: {finalPrice.toLocaleString()}₫
             </p>
           </>
-        )}
+        )} */}
+        {selectedVoucher &&
+          (() => {
+            const result = checkVoucher(selectedVoucher);
+            if (!result) return null;
+            return (
+              <>
+                <p className="text-green-400">
+                  Giảm được: {result.discountAmount.toLocaleString()}₫
+                </p>
+                <p className="text-md text-yellow-300 font-semibold">
+                  Tiền sau khi giảm: {result.finalPrice.toLocaleString()}₫
+                </p>
+              </>
+            );
+          })()}
 
         <button
           onClick={handleConfirmOrder}
