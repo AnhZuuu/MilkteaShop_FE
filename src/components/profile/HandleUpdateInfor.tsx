@@ -14,18 +14,26 @@ export const UpdateUserModal: React.FC<UpdateUserModalProps> = ({
   const [errors, setErrors] = useState<{ [key: string]: string }>({});
   const [formData, setFormData] = useState({
     username: "",
+    passwordHash: "",
     email: "",
     phoneNumber: "",
     imageUrl: "",
+    role: 2,
+    isActive: true,
+    storeId: "",
   });
 
   useEffect(() => {
     if (user) {
       setFormData({
         username: user.username || "",
+        passwordHash: user.passwordHash || "",
         email: user.email || "",
         phoneNumber: user.phoneNumber || "",
         imageUrl: user.imageUrl || "",
+        role : Number(user.role) || 2,
+        isActive: user.isActive ?? true,
+        storeId: user.storeId || "",
       });
     }
   }, [user]);
@@ -34,7 +42,6 @@ export const UpdateUserModal: React.FC<UpdateUserModalProps> = ({
 
   const handleUpdateUser = async () => {
     const updatedUser = {
-      ...user,
       ...formData,
       updatedAt: new Date().toISOString(),
     };

@@ -1,6 +1,6 @@
 "use client";
 import React, { useState, useCallback, useMemo, useEffect } from "react";
-import { format } from "date-fns";
+import { format, isValid, parseISO } from "date-fns";
 import { FiEdit2, FiEye, FiTrash2, FiSearch, FiPlus } from "react-icons/fi";
 import { DeleteConfirmationModal, DeleteUserHandle } from "./HandleDeleteUser";
 import { CreateUserModal } from "./HandleCreateUser";
@@ -31,20 +31,14 @@ const UserTable = () => {
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [showUpdateModal, setShowUpdateModal] = useState(false);
 
-  useEffect(() => {
-    const storedUserInfo = localStorage.getItem("userInfo");
-    if (storedUserInfo) {
-      setUserInfo(JSON.parse(storedUserInfo));
-    }
-
-    const fetchUsers = async () => {
+  const fetchUsers = async () => {
       try {
         const response = await fetch(
           "https://milkteashop-fmcufmfkaja8d6ec.southeastasia-01.azurewebsites.net/api/User"
         );
         const data: User[] = await response.json();
         console.log("Fetched DATA:", data);
-        setUsers([...users, ...data]); 
+        setUsers([...users, ...data]);
       } catch (error) {
         console.log("Error fetching users:", error);
       }
@@ -63,6 +57,11 @@ const UserTable = () => {
       }
     };
 
+  useEffect(() => {
+    const storedUserInfo = localStorage.getItem("userInfo");
+    if (storedUserInfo) {
+      setUserInfo(JSON.parse(storedUserInfo));
+    }
     fetchUsers();
     fetchStores();
   }, []);
@@ -70,7 +69,9 @@ const UserTable = () => {
   const filteredUsers = useMemo(() => {
     return users.filter((user) => {
       const matchesSearch = user.username?.includes(searchTerm);
-      const matchesRole = roleFilter === "all" || (typeof user.role === "number" && user.role === Number(roleFilter));
+      const matchesRole =
+        roleFilter === "all" ||
+        (typeof user.role === "number" && user.role === Number(roleFilter));
       const userStatus = user.isActive === true ? "Active" : "Block";
       const matchesStatus =
         statusFilter === "all" || userStatus === statusFilter;
@@ -239,7 +240,10 @@ const UserTable = () => {
                   {format(user.createdAt, "MMM dd, yyyy")}
                 </td> */}
                 <td className="px-6 py-4 whitespace-nowrap">
-                  <div>{format(user.updatedAt, "MMM dd, yyyy")}</div>
+                  {/* <div>{format(user.updatedAt, "MMM dd, yyyy")}</div> */}
+                  {user.updatedAt && isValid(parseISO(user.updatedAt))
+                    ? format(parseISO(user.updatedAt), "MMM dd, yyyy")
+                    : "—"}
                 </td>
 
                 <td className="px-6 py-4 whitespace-nowrap">
@@ -340,6 +344,7 @@ const UserTable = () => {
           users={users}
           stores={store}
           setUsers={setUsers}
+          onCreated={fetchUsers}
         />
       )}
 

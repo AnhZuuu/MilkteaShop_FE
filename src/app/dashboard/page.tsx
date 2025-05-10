@@ -73,7 +73,7 @@ export default function Home() {
   if (loading) return <div>Loading...</div>;
 
   return (
-    <div className="p-6 sm:p-10 space-y-10 font-[family-name:var(--font-geist-sans)] bg-gray-100">
+    <div className="p-6 sm:p-10 space-y-10 bg-gray-100">
       <h1 className="text-2xl font-bold text-center">Thống kê</h1>
       <div className="p-6 bg-white rounded-lg shadow overflow-x-auto scrollbar-hidden">
         <h1 className="text-2xl font-bold">Top 5 sản phẩm bán chạy</h1>

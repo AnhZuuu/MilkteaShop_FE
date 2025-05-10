@@ -21,6 +21,8 @@ export default function UserMetaCard({ userId }: Props) {
   };
 
   useEffect(() => {
+    if (!userId || user) return;
+    
     const fetchUser = async () => {
       try {
         const response = await fetch(

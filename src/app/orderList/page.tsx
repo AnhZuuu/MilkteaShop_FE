@@ -46,7 +46,8 @@ export default function Home() {
 
   return (
     <div className="p-6 sm:p-10 space-y-10 font-[family-name:var(--font-geist-sans)] bg-gray-100">
-      <OrderList orders={orders} setOrders={handleUpdateStatus}/>
+      {user?.storeId && <OrderList orders={orders} storeId={user.storeId} setOrders={handleUpdateStatus}/>}
+      
     </div>
   );
 }

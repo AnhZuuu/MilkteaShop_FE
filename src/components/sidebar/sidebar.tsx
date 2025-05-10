@@ -44,7 +44,8 @@ export default function SideBar() {
     { href: "/dashboard/combo", label: "Combo" },
     // { href: "/dashboard/mapping2", label: "Mapping2" },
     { href: "/dashboard/mapping2", label: "Doanh thu" },
-    { href: "/dashboard/voucher", label: "Voucher" }
+    { href: "/dashboard/voucher", label: "Voucher" },
+    { href: "/dashboard/profile", label: "Hồ sơ" }
 
   ];
 
