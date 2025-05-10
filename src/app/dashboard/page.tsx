@@ -5,6 +5,7 @@ import dynamic from "next/dynamic";
 import { useEffect, useState } from "react";
 import axios from "axios";
 import ProductCarousel from "@/components/topSellingProducts/ProductCard";
+// import OrderStatusPieChart from "@/components/charts/circle/orderStatusPieChart";
 const OrderTable = dynamic(
   () => import("@/components/orderManagement/OrderTable"),
   {
@@ -20,6 +21,10 @@ const DailyChart = dynamic(
 );
 
 const PaymentMethodPieChart = dynamic(() => import("@/components/charts/circle/PaymentMethodPieChart"), {
+  ssr: false,
+});
+
+const OrderStatusPieChart = dynamic(() => import("@/components/charts/circle/OrderStatusPieChart"), {
   ssr: false,
 });
 
@@ -82,8 +87,12 @@ export default function Home() {
       {/* Charts in one row */}
       <h1 className="text-2xl font-bold">Doanh thu</h1>
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-        <DailyChart />
-        <PaymentMethodPieChart orders={orders}/>
+
+        <PaymentMethodPieChart orders={orders} />
+        <OrderStatusPieChart orders={orders} />
+        <div className="lg:col-span-2">
+          <DailyChart />
+        </div>
       </div>
       <h1 className="text-2xl font-bold">Đơn hàng</h1>
       <OrderTable />

@@ -32,6 +32,7 @@ type ApiResponse = {
 type ChartData = {
   date: string;
   total: number;
+  orders: number
 };
 
 const rangeOptions = ['today', 'week', 'month', 'year'] as const;
@@ -48,7 +49,11 @@ export default function TimeChooseChart() {
           'https://milkteashop-fmcufmfkaja8d6ec.southeastasia-01.azurewebsites.net/api/Order/stats'
         );
 
+        // console.log("RESPONSEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE"+response);
+
         const summary = response.data[selectedRange];
+        // console.log("SUMMARYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYY"+summary)
+        console.log("SUMMARYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYY ORDERSSSSSSSS" + summary.totalOrders)
 
         const date = new Date(summary.startDate).toISOString().split('T')[0];
 
@@ -56,6 +61,7 @@ export default function TimeChooseChart() {
           {
             date,
             total: summary.totalAmount,
+            orders: summary.totalOrders
           },
         ];
 
@@ -87,22 +93,57 @@ export default function TimeChooseChart() {
             {range === 'today'
               ? 'Hôm nay'
               : range === 'week'
-              ? 'Tuần'
-              : range === 'month'
-              ? 'Tháng'
-              : 'Năm'}
+                ? 'Tuần'
+                : range === 'month'
+                  ? 'Tháng'
+                  : 'Năm'}
           </button>
         ))}
       </div>
+
+      {data.length > 0 && (
+        <div className="flex gap-4 mb-4">
+          <div className="flex-1 bg-gray-100 p-4 rounded-xl shadow text-center">
+            <p className="text-gray-600 text-sm">Số đơn</p>
+            <p className="text-2xl font-bold text-blue-600">
+              {data[0].orders.toLocaleString()} đơn
+            </p>
+          </div>
+
+          <div className="flex-1 bg-gray-100 p-4 rounded-xl shadow text-center">
+            <p className="text-gray-600 text-sm">Tổng tiền</p>
+            <p className="text-2xl font-bold text-green-600">
+              {data[0].total.toLocaleString()} VND
+            </p>
+          </div>
+        </div>
+      )}
 
       <ResponsiveContainer width="100%" height="100%">
         <LineChart data={data}>
           <CartesianGrid strokeDasharray="3 3" />
           <XAxis dataKey="date" />
           <YAxis />
+          <Tooltip
+            formatter={(value: number, name: string) => {
+              if (name === 'orders') return [`${value.toLocaleString()} đơn`, 'Số đơn'];
+              if (name === 'total') return [`${value.toLocaleString()} VND`, 'Tổng tiền'];
+              return [value, name];
+            }}
+          />
+          <Line type="monotone" dataKey="orders" stroke="#8884d8" strokeWidth={3} name="orders" />
+          <Line type="monotone" dataKey="total" stroke="#82ca9d" strokeWidth={3} name="total" />
+        </LineChart>
+        {/* <LineChart data={data}>
+          <CartesianGrid strokeDasharray="3 3" />
+          <XAxis dataKey="date" />
+          <YAxis />
+          <Tooltip formatter={(value: number) => `${value.toLocaleString()} đơn`} />
+          <Line type="monotone" dataKey="orders" stroke="#82ca9d" strokeWidth={3} />
+
           <Tooltip formatter={(value: number) => `${value.toLocaleString()} VND`} />
           <Line type="monotone" dataKey="total" stroke="#82ca9d" strokeWidth={3} />
-        </LineChart>
+        </LineChart> */}
       </ResponsiveContainer>
     </div>
   );
