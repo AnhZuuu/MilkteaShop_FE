@@ -16,19 +16,25 @@ const OrderDetailPage = () => {
     1: "Tiền mặt",
   };
   const sizeMap: { [key: number]: string } = { 0: "S", 1: "M", 2: "L" };
+  const statusClassMap: Record<string, string> = {
+    Processing: "bg-blue-200 text-blue-800",
+    Completed: "bg-green-200 text-green-800",
+    Cancelled: "bg-red-200 text-red-800",
+  };
+  const statusMap: { [key: string]: string } = {
+    Processing: "Đang xử lý",
+    Completed: "Hoàn thành",
+    Cancelled: "Đã hủy",
+  };
 
   useEffect(() => {
     const userData = localStorage.getItem("user");
     if (!userData) {
-      router.replace("/"); 
+      router.replace("/");
     } else {
       const parsedUser = JSON.parse(userData);
-      if (parsedUser.role !== "Admin" && parsedUser.role !== "Manager") {
-        router.replace("/"); 
-      } else {
-        setUser(parsedUser);
-        setLoading(false);
-      }
+      setUser(parsedUser);
+      setLoading(false);
     }
 
     const fetchOrder = async () => {
@@ -144,6 +150,9 @@ const OrderDetailPage = () => {
         <p className="text-sm text-gray-300 mb-4">
           Ngày tạo: {format(order.createdAt, "MMM dd, yyyy")}
         </p>
+        <p className="text-sm text-gray-300 mb-4">
+          Trạng thái đơn hàng: {statusMap[order.orderStatus || ""]}
+        </p>
         <div className="font-bold mb-4 border-b border-gray-600 pb-2"></div>
         {order.orderItems.length === 0 ? (
           <p className="text-gray-300">Không có mặt hàng nào trong đơn.</p>
@@ -188,6 +197,16 @@ const OrderDetailPage = () => {
               )}
             </div>
           ))
+        )}
+
+        {order.voucherId ? (
+          <div className="border-t border-gray-600 pt-4 text-sm">
+            <p className="text-md font-bold text-white">
+              🎫 Voucher: {order.voucherId}
+            </p>
+          </div>
+        ) : (
+          <></>
         )}
 
         <div className="mt-6 border-t border-gray-600 pt-4 text-sm">

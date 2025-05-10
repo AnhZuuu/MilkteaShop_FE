@@ -6,6 +6,7 @@ interface CreateUserModalProps {
   users: any[];
   setUsers: React.Dispatch<React.SetStateAction<any[]>>;
   stores: { id: string; storeName: string }[];
+  onCreated: () => void;
 }
 
 export const CreateUserModal: React.FC<CreateUserModalProps> = ({
@@ -14,6 +15,7 @@ export const CreateUserModal: React.FC<CreateUserModalProps> = ({
   users,
   setUsers,
   stores,
+  onCreated
 }) => {
   const [errors, setErrors] = useState<{ [key: string]: string }>({});
   const [touched, setTouched] = useState<{ storeId?: boolean }>({});
@@ -21,7 +23,7 @@ export const CreateUserModal: React.FC<CreateUserModalProps> = ({
     username: "",
     password: "",
     phoneNumber: "",
-    role: "Staff",
+    role: 2,
     storeId: "",
   });
 
@@ -73,7 +75,7 @@ export const CreateUserModal: React.FC<CreateUserModalProps> = ({
 
       if (response.ok) {
         const data = await response.json();
-        setUsers([...users, data]);
+        onCreated();
         onClose();
       } else {
         const error = await response.json();
@@ -193,7 +195,7 @@ export const CreateUserModal: React.FC<CreateUserModalProps> = ({
                 className="mt-2 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-500"
                 value={formData.role}
                 onChange={(e) =>
-                  setFormData({ ...formData, role: e.target.value })
+                  setFormData({ ...formData, role: parseInt(e.target.value) })
                 }
               >
                 <option value="0">Admin</option>

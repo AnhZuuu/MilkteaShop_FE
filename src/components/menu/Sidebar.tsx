@@ -1,3 +1,4 @@
+import Link from "next/link";
 import React, { useEffect, useState } from "react";
 
 interface SidebarProps {
@@ -22,7 +23,7 @@ const Sidebar: React.FC<SidebarProps> = ({
           "https://milkteashop-fmcufmfkaja8d6ec.southeastasia-01.azurewebsites.net/api/Category"
         );
         const data = await response.json();
-        setCategories(data.filter((cate : any) => !cate.categoryName.toLowerCase().includes("topping")));
+        setCategories(data.filter((cate: any) => !cate.categoryName.toLowerCase().includes("topping")));
       } catch (error) {
         console.log("Error fetching categories: ", error);
       }
@@ -44,12 +45,17 @@ const Sidebar: React.FC<SidebarProps> = ({
       </div>
       <hr className="border-blue-600 mb-4" />
       <div className="space-y-2">
+        <Link href={`/menu/combo`}>
+          <button className="w-full text-left px-4 py-2 rounded hover:bg-[#1c2c4a] ">
+            Combo
+          </button>
+        </Link>
+
         <button
           key={"all"}
           onClick={() => setSelectedCategory("all")}
-          className={`w-full text-left px-4 py-2 rounded ${
-            selectedCategory === "all" ? "bg-blue-600" : "hover:bg-[#1c2c4a]"
-          }`}
+          className={`w-full text-left px-4 py-2 rounded ${selectedCategory === "all" ? "bg-blue-600" : "hover:bg-[#1c2c4a]"
+            }`}
         >
           Tất cả
         </button>
@@ -57,9 +63,8 @@ const Sidebar: React.FC<SidebarProps> = ({
           <button
             key={cat.id}
             onClick={() => setSelectedCategory(cat.id)}
-            className={`w-full text-left px-4 py-2 rounded ${
-              selectedCategory === cat.id ? "bg-blue-600" : "hover:bg-[#1c2c4a]"
-            }`}
+            className={`w-full text-left px-4 py-2 rounded ${selectedCategory === cat.id ? "bg-blue-600" : "hover:bg-[#1c2c4a]"
+              }`}
           >
             {cat.categoryName}
           </button>

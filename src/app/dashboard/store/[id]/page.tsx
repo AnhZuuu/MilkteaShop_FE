@@ -8,40 +8,15 @@ import {
   FaCheckCircle,
   FaTimesCircle,
 } from "react-icons/fa";
+import DailyChart from "@/components/charts/line/DailyChart";
+import DailyChartForStore from "@/components/charts/line/DailyChartForStore";
+import PaymentMethodPieChart from "@/components/charts/circle/PaymentMethodPieChart";
 
-// type User = {
-//   id: string
-//   username: string;
-//   role: string;
-//   imageUrl?: string;
-//   phoneNumber: string;
-//   email?: string;
-//   isActive: boolean;
-// };
-
-// type Store = {
-//   id: string;
-//   storeName: string;
-//   description?: string;
-//   address: string;
-//   phoneNumber: string;
-//   isActive: boolean;
-//   users: User[];
-// };
-
-// type Order = {
-//   id: string;
-//   orderNumber: string;
-//   paymentMethod: number;
-//   totalAmount: number;
-//   createdAt: string;
-//   userId: string;
-// };
 
 export default function StoreDetailPage({ params }: { params: { id: string } }) {
   const [store, setStore] = useState<Store | null>(null);
   const [orders, setOrders] = useState<Order[]>([]);
-  const [activeTab, setActiveTab] = useState<"users" | "cash" | "momo">("users");
+  const [activeTab, setActiveTab] = useState<"users" | "cash" | "momo" | "revenue">("users");
 
   useEffect(() => {
     const fetchStoreAndOrders = async () => {
@@ -62,13 +37,12 @@ export default function StoreDetailPage({ params }: { params: { id: string } }) 
       // const storeOrders = allOrders.filter((o) =>
       //   storeData.users.some((u) => u.id === o.userId)
       // );
-      const storeOrders = allOrders.filter((o) =>
-        o.userId && storeData.users.some((u) => u.id === o.userId)
-      );
-      
+      const storeOrders = allOrders.filter((o) => o.storeId === storeData.id);
+
       console.log(" STORE ORDER NÈ" + storeOrders);
 
       setOrders(storeOrders);
+      console.log(" STORE ORDER 222NÈ" + storeOrders);
     };
 
     fetchStoreAndOrders();
@@ -80,6 +54,13 @@ export default function StoreDetailPage({ params }: { params: { id: string } }) 
     (o) => (activeTab === "cash" && o.paymentMethod === 1) || (activeTab === "momo" && o.paymentMethod === 0)
   );
   console.log(" filteredOrders filteredOrders NÈ" + filteredOrders);
+
+  const paymentStats = [
+    { name: 'Cash', value: orders.filter((o) => o.paymentMethod === 1).length },
+    { name: 'Momo', value: orders.filter((o) => o.paymentMethod === 0).length },
+  ];
+
+  const COLORS = ['#0088FE', '#FF8042']; // Cash: Blue, Momo: Orange
 
   return (
     <div className="max-w-4xl mx-auto p-8">
@@ -117,6 +98,13 @@ export default function StoreDetailPage({ params }: { params: { id: string } }) 
               </>
             )}
           </div>
+
+          <div className="flex items-center gap-2">
+            💰
+            <span className="text-gray-700">
+              Tiền mặt tại cửa hàng: {store.cashBalance}
+            </span>
+          </div>
         </div>
 
         {/* Tabs */}
@@ -139,34 +127,102 @@ export default function StoreDetailPage({ params }: { params: { id: string } }) 
           >
             Momo
           </button>
+          <button
+            className={`px-4 py-2 rounded ${activeTab === "revenue" ? "bg-blue-500 text-white" : "bg-gray-200"}`}
+            onClick={() => setActiveTab("revenue")}
+          >
+            Doanh thu cửa hàng
+          </button>
+
+          {store.users.length === 0 ?
+            (
+              <button
+                className="text-white hover:bg-red-800 bg-red-600 px-4 py-2 rounded"
+                onClick={async () => {
+                  const confirmToggle = window.confirm(
+                    store.isActive
+                      ? "Bạn có chắc muốn tạm nghỉ cửa hàng này?"
+                      : "Bạn có muốn mở cửa lại cửa hàng này?"
+                  );
+                  if (!confirmToggle) return;
+
+                  try {
+                    const updatedStore = {
+                      ...store,
+                      isActive: !store.isActive,
+                    };
+
+                    const res = await fetch(
+                      `https://milkteashop-fmcufmfkaja8d6ec.southeastasia-01.azurewebsites.net/api/Store/${store.id}`,
+                      {
+                        method: "PUT",
+                        headers: {
+                          "Content-Type": "application/json",
+                        },
+                        body: JSON.stringify(updatedStore),
+                      }
+                    );
+
+                    if (!res.ok) throw new Error("Failed to update store status");
+
+                    // If API returns content
+                    if (res.status !== 204) {
+                      const newStore = await res.json();
+                      setStore(newStore);
+                      alert(`Cửa hàng đã được ${newStore.isActive ? "mở cửa" : "tạm nghỉ"}.`);
+                    } else {
+                      // If no content, update manually
+                      setStore((prev) => {
+                        if (!prev) return prev; // or return null;
+                        return { ...prev, isActive: !prev.isActive };
+                      });
+
+                      alert(`Cửa hàng đã được ${!store.isActive ? "mở cửa" : "tạm nghỉ"}.`);
+                    }
+                  } catch (error) {
+                    console.error("Error updating store:", error);
+                    alert("Có lỗi khi cập nhật trạng thái cửa hàng.");
+                  }
+                }}
+              >
+                {store.isActive ? "Tạm nghỉ cửa hàng" : "Mở cửa lại cửa hàng"}
+              </button>
+
+            )
+            :
+            (<></>)}
         </div>
 
-        {/* Tab content */}
         <div className="mt-6">
           {activeTab === "users" && (
             <div className="space-y-4">
-              {store.users.map((user) => (
-                <div key={user.username} className="flex items-center gap-3">
-                  <img
-                    src={user.imageUrl || "https://via.placeholder.com/50"}
-                    alt={user.username}
-                    className="w-12 h-12 rounded-full"
-                  />
-                  <div>
-                    <p className="text-gray-700 font-medium">{user.username}</p>
-                    <p className="text-gray-500">{user.role}</p>
-                    <p className="text-gray-500">{user.phoneNumber}</p>
-                    <p className="text-gray-500">{user.email || "Chưa có email"}</p>
+              {store.users.length === 0 ?
+                (<p className="text-gray-500">Không có nhân viên ở chi nhánh này.</p>)
+                :
+                (<>{store.users.map((user) => (
+                  <div key={user.username} className="flex items-center gap-3">
+                    <img
+                      src={user.imageUrl || "https://via.placeholder.com/50"}
+                      alt={user.username}
+                      className="w-12 h-12 rounded-full"
+                    />
+                    <div>
+                      <p className="text-gray-700 font-medium">{user.username}</p>
+                      <p className="text-gray-500">{user.role}</p>
+                      <p className="text-gray-500">{user.phoneNumber}</p>
+                      <p className="text-gray-500">{user.email || "Chưa có email"}</p>
+                    </div>
+                    <div className="ml-auto">
+                      {user.isActive ? (
+                        <span className="text-green-500">Hoạt động</span>
+                      ) : (
+                        <span className="text-gray-500">Không hoạt động</span>
+                      )}
+                    </div>
                   </div>
-                  <div className="ml-auto">
-                    {user.isActive ? (
-                      <span className="text-green-500">Hoạt động</span>
-                    ) : (
-                      <span className="text-gray-500">Không hoạt động</span>
-                    )}
-                  </div>
-                </div>
-              ))}
+                ))}
+                </>)}
+
             </div>
           )}
 
@@ -182,12 +238,30 @@ export default function StoreDetailPage({ params }: { params: { id: string } }) 
                   >
                     <p><strong>Mã đơn:</strong> {order.orderNumber}</p>
                     <p><strong>Tổng tiền:</strong> {order.totalAmount.toLocaleString()}₫</p>
-                    <p><strong>Ngày:</strong> {new Date(order.createdAt).toLocaleDateString()}</p>
+                    <p><strong>Ngày:</strong> {new Date(order.createdAt).toLocaleDateString('en-GB')}</p>
                   </div>
                 ))
               )}
             </div>
           )}
+
+          {activeTab === "revenue" && (<>
+            <div className="bg-white p-4 rounded-2xl shadow w-full max-w-md">
+              <h2 className="text-xl font-semibold mb-4">Tỉ lệ thanh toán</h2>
+              <PaymentMethodPieChart orders={orders} />
+            </div>
+
+            <DailyChart />
+            
+            <div className="space-y-4">
+              <DailyChartForStore storeId={params.id} />
+            </div>
+
+
+          </>
+          )}
+
+
         </div>
       </div>
     </div>
