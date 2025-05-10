@@ -1,5 +1,5 @@
 "use client";
-import React from 'react';
+import React from "react";
 
 interface DeleteConfirmationModalProps {
   onClose: () => void;
@@ -40,37 +40,36 @@ const DeleteUserHandle = async (
   setSelectedUser: React.Dispatch<React.SetStateAction<User | null>>
 ) => {
   if (!selectedUser) return;
-  console.log("Selected User:", JSON.stringify(selectedUser, null, 2));
+  console.log("Selected User:", JSON.stringify(users, null, 2));
 
   const updatedUser = {
     ...selectedUser,
-    role: String(selectedUser.role),
     updatedAt: new Date().toISOString(),
     deletedAt: new Date().toISOString(), 
     isActive: false
   };
-  
+
   console.log("User updated: " + JSON.stringify(updatedUser));
 
   try {
     const response = await fetch(
       `https://milkteashop-fmcufmfkaja8d6ec.southeastasia-01.azurewebsites.net/api/User/${selectedUser.id}`,
       {
-        method: 'PUT',
+        method: "PUT",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
         body: JSON.stringify(updatedUser),
       }
     );
 
     if (!response.ok) {
-      const errorDetails = await response.text(); 
+      const errorDetails = await response.text();
       throw new Error(`Failed to delete user: ${errorDetails}`);
-    }  
+    }
 
     // Update the local state with the updated user data
-    const updatedUsers = users.map((user) =>
+    const updatedUsers = users.map((user : any) =>
       user.id === selectedUser.id ? updatedUser : user
     );
     setUsers(updatedUsers);
@@ -78,7 +77,7 @@ const DeleteUserHandle = async (
     setShowDeleteModal(false);
     setSelectedUser(null);
   } catch (error) {
-    console.error('Error deleting user:', error);
+    console.error("Error deleting user:", error);
   }
 };
 

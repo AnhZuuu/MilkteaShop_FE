@@ -73,12 +73,18 @@ const HandleSetPriceProduct: React.FC<HandleSetPriceProductProps> = ({
         <h2 className="text-xl font-bold mb-4 text-center">Nhập giá cho {product.productName}</h2>
         {product.productType === "Main" ? (
           <div className="space-y-3">
-            <input type="number" placeholder="Giá size S" value={priceS ?? ""} onChange={(e) => setPriceS(Number(e.target.value))} className="w-full p-2 border rounded" />
-            <input type="number" placeholder="Giá size M" value={priceM ?? ""} onChange={(e) => setPriceM(Number(e.target.value))} className="w-full p-2 border rounded" />
-            <input type="number" placeholder="Giá size L" value={priceL ?? ""} onChange={(e) => setPriceL(Number(e.target.value))} className="w-full p-2 border rounded" />
+            <label className="text-sm font-bold text-gray-700">Gía tiền size S</label>
+            <input type="number" placeholder="Nhập giá" value={priceS ?? ""} onChange={(e) => setPriceS(Number(e.target.value))} className="w-full p-2 border rounded" />
+            <label className="text-sm font-bold text-gray-700">Gía tiền size M</label>
+            <input type="number" placeholder="Nhập giá" value={priceM ?? ""} onChange={(e) => setPriceM(Number(e.target.value))} className="w-full p-2 border rounded" />
+            <label className="text-sm font-bold text-gray-700">Gía tiền size L :</label>
+            <input type="number" placeholder="Nhập giá" value={priceL ?? ""} onChange={(e) => setPriceL(Number(e.target.value))} className="w-full p-2 border rounded" />
           </div>
         ) : (
-          <input type="number" placeholder="Giá topping" value={extraPrice ?? ""} onChange={(e) => setExtraPrice(Number(e.target.value))} className="w-full p-2 border rounded" />
+          <>
+            <label className="text-sm font-bold text-gray-700">Gía của topping :</label>
+            <input type="number" placeholder="Giá topping" value={extraPrice ?? ""} onChange={(e) => setExtraPrice(Number(e.target.value))} className="w-full p-2 border rounded" />
+          </>
         )}
 
         <div className="flex justify-end gap-2 mt-4">
