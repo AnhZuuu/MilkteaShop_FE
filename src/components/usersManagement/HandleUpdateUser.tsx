@@ -24,7 +24,7 @@ export const UpdateUserModal: React.FC<UpdateUserModalProps> = ({
     email: "",
     phoneNumber: "",
     imageUrl: "",
-    role: "Staff",
+    role: 2,
     isActive: true,
     storeId: "",
   });
@@ -50,7 +50,7 @@ export const UpdateUserModal: React.FC<UpdateUserModalProps> = ({
         email: selectedUser.email || "",
         phoneNumber: selectedUser.phoneNumber || "",
         imageUrl: selectedUser.imageUrl || "",
-        role: String(selectedUser.role) || "Staff",
+        role: selectedUser.role || 2,
         isActive: selectedUser.isActive ?? true,
         storeId: selectedUser.storeId || "",
       });
@@ -61,7 +61,6 @@ export const UpdateUserModal: React.FC<UpdateUserModalProps> = ({
 
   const handleUpdateUser = async () => {
     const updatedUser = {
-      ...selectedUser,
       ...formData,
       updatedAt: new Date().toISOString(),
     };
@@ -217,7 +216,7 @@ export const UpdateUserModal: React.FC<UpdateUserModalProps> = ({
                 className="mt-2 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-500"
                 value={formData.role}
                 onChange={(e) =>
-                  setFormData({ ...formData, role: e.target.value })
+                  setFormData({ ...formData, role: parseInt(e.target.value) })
                 }
               >
                 <option value="0">Admin</option>

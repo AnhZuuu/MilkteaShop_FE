@@ -1,21 +1,20 @@
 'use client';
 
 import Image from "next/image";
-// import LineChartOne from "@/components/charts/line/LineChartOne";
-// import BarChartOne from "@/components/charts/bar/BarChartOne";
 import { useRouter } from "next/navigation";
 import dynamic from "next/dynamic";
 import { useEffect, useState } from "react";
+import axios from "axios";
 // import OrderTable from "@/components/orderManagement/OrderTable";
 const OrderTable = dynamic(() => import("@/components/orderManagement/OrderTable"), {
   ssr: false,
 });
 
-const LineChartOne = dynamic(() => import("@/components/charts/line/LineChartOne"), {
+const DailyChart = dynamic(() => import("@/components/charts/line/DailyChart"), {
   ssr: false,
 });
 
-const BarChartOne = dynamic(() => import("@/components/charts/bar/BarChartOne"), {
+const PaymentMethodPieChart = dynamic(() => import("@/components/charts/circle/PaymentMethodPieChart"), {
   ssr: false,
 });
 export default function Home() {
@@ -24,6 +23,8 @@ export default function Home() {
   const [loading, setLoading] = useState(true);
   const [user, setUser] = useState(null);
   const [width, setWidth] = useState(0);
+  const [orders, setOrders] = useState([]);
+
 
   const [isMobile, setIsMobile] = useState(false);
 
@@ -33,16 +34,34 @@ export default function Home() {
     }
   }, []);
 
+  useEffect(() => {
+    const fetchOrders = async () => {
+      try {
+        const res = await axios.get(
+          "https://milkteashop-fmcufmfkaja8d6ec.southeastasia-01.azurewebsites.net/api/Order"
+        );
+        setOrders(res.data);
+      } catch (error) {
+        console.error("Failed to fetch orders:", error);
+      }
+    };
 
+    fetchOrders();
+  }, []);
 
   useEffect(() => {
     if (typeof window !== "undefined") {
       const userData = localStorage.getItem("user");
       if (!userData) {
-        router.replace("/");
+        router.replace("/"); 
       } else {
-        setUser(JSON.parse(userData));
-        setLoading(false);
+        const parsedUser = JSON.parse(userData);
+        if (parsedUser.role !== "Admin" && parsedUser.role !== "Manager") {
+          router.replace("/"); 
+        } else {
+          setUser(parsedUser);
+          setLoading(false);
+        }
       }
     }
 
@@ -56,23 +75,9 @@ export default function Home() {
       <OrderTable />
       {/* Charts in one row */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-        <LineChartOne />
-        <BarChartOne />
+        <DailyChart />
+        <PaymentMethodPieChart orders={orders}/>
       </div>
-
-      {/* OrderTable below charts */}
-
-    </div>
-    // <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
-    //   <h1>Doanh thu</h1>
-    //   <main className="flex flex-col gap-8 row-start-2 items-center sm:items-start">
-    //   <LineChartOne/>
-
-
-    //   </main>
-    //   <footer className="row-start-3 flex gap-6 flex-wrap items-center justify-center">
-    //   <BarChartOne/>
-    //   </footer>
-    // </div>
+  </div>
   );
 }

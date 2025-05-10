@@ -3,6 +3,7 @@ import CartPanel from "@/components/menu/CartPanel";
 import ProductGrid from "@/components/menu/ProductGrid";
 import Sidebar from "@/components/menu/Sidebar";
 import OrderSummary from "@/components/order/OrderSummary";
+import { useRouter } from "next/navigation";
 import React, { useEffect, useState } from "react";
 
 const MenuPage: React.FC = () => {
@@ -12,8 +13,25 @@ const MenuPage: React.FC = () => {
   const [cart, setCart] = useState<OrderItem[]>([]);
   const [isCheckout, setIsCheckout] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
+  const router = useRouter();
+  const [loading, setLoading] = useState(true);
+  const [user, setUser] = useState<User | null>(null);
 
   useEffect(() => {
+    const userData = localStorage.getItem("user");
+    if (!userData) {
+      router.replace("/");
+    } else {
+      try {
+        const parsedUser = JSON.parse(userData);
+        console.log("userInfo:", parsedUser);
+        setUser(parsedUser);
+      } catch (e) {
+        console.error("Failed to parse user data:", e);
+        router.replace("/");
+      }
+    }
+
     const fetchProducts = async () => {
       try {
         const res = await fetch(
@@ -97,6 +115,7 @@ const MenuPage: React.FC = () => {
             // <OrderSummary cart={cart} onConfirmOrder={handleConfirmOrder} />
             <OrderSummary
               cart={cart}
+              userInfo={user}
               onConfirmOrder={handleConfirmOrder}
               setIsCheckout={setIsCheckout}
               products={products}

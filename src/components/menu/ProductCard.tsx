@@ -36,33 +36,34 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, onAddToCart }) => {
   };
 
   useEffect(() => {
-    const fetchToppings = async () => {
+
+    const fetchToppings = async (product: Product) => {
       try {
         const [productsRes, categoryMapRes] = await Promise.all([
           fetch(
             "https://milkteashop-fmcufmfkaja8d6ec.southeastasia-01.azurewebsites.net/api/Product"
           ),
           fetch(
-            "https://6804ddf079cb28fb3f5c082f.mockapi.io/swp391/CategoryExtraMappings"
+            "https://milkteashop-fmcufmfkaja8d6ec.southeastasia-01.azurewebsites.net/api/CategoryExtraMapping"
           ),
         ]);
 
         const products = await productsRes.json();
-        const categoryExtraMapping = await categoryMapRes.json();
+        const categoryMapJson = await categoryMapRes.json();
+        const categoryExtraMapping = categoryMapJson.data || [];
 
+        // Find mappings for the selected product's category
         const linkedExtraCategoryIds = categoryExtraMapping
-          .filter(
-            (mapping: categoryExtraMapping) =>
-              mapping.mainCategoryId === product.categoryId
-          )
-          .map((mapping: categoryExtraMapping) => mapping.extraCategoryId);
+          .filter((mapping: any) => mapping.mainCategoryId === product.categoryId)
+          .map((mapping: any) => mapping.extraCategoryId);
 
+        // Filter extra products that match the linked extra category
         const extraProducts = products.filter(
           (p: Product & { productType?: string }) =>
             p.productType === "Extra" &&
             linkedExtraCategoryIds.includes(p.categoryId)
         );
-        console.log("show extraProduct: " + linkedExtraCategoryIds);
+
         setToppings(extraProducts);
       } catch (error) {
         console.error("Error fetching toppings:", error);
@@ -82,7 +83,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, onAddToCart }) => {
       }
     };
 
-    fetchToppings();
+    fetchToppings(product);
     fetchProductSize();
   }, [product.categoryId]);
 

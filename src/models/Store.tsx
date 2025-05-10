@@ -4,6 +4,7 @@ interface Store {
     description: string;
     address: string;
     phoneNumber: string;
+    cashBalance: number;
     users: User[]; 
     orders: Order[]; 
     isActive: boolean;

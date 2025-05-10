@@ -57,7 +57,7 @@ const HandleUpdateProduct: React.FC<HandleUpdateProductProps> = ({
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (!productName.trim() || !description.trim() || !categoryId) return;
+    if (!productName.trim() || !categoryId || !productType) return;
 
     const updatedProduct: Product = {
       ...product,
@@ -116,7 +116,18 @@ const HandleUpdateProduct: React.FC<HandleUpdateProductProps> = ({
               ))}
             </select>
           </div>
-
+          <div>
+            <label className="block font-semibold text-sm mb-1">Loại</label>
+            <select
+              value={productType}
+              onChange={(e) => setProductType(e.target.value)}
+              className="w-full border p-2 rounded-md"
+            >
+              <option value="">-- Chọn loại --</option>
+              <option value="Main">Main</option>
+              <option value="Extra">Extra</option>
+            </select>
+          </div>
           <div className="flex justify-end gap-2">
             <button
               type="button"
