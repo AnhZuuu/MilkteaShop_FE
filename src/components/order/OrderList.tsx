@@ -6,7 +6,7 @@ import { useRouter } from "next/navigation";
 
 interface Props {
   orders: Order[];
-  storeId: string;
+  storeId?: string;
   setOrders: (updatedOrder: any) => void;
 }
 
@@ -19,7 +19,7 @@ const OrderList: React.FC<Props> = ({ orders, setOrders, storeId }) => {
   // const [orders, setOrders] = useState<Order[]>([]);
   const [users, setUsers] = useState<User[]>([]);
   // const [store, setStore] = useState<Store[]>([]);
-  const [storeFilter, setStoreFilter] = useState("all");
+  const [storeFilter, setStoreFilter] = useState(storeId);
   const [searchTerm, setSearchTerm] = useState("");
   const [paymentFilter, setPaymentFilter] = useState("all");
   const [currentPage, setCurrentPage] = useState(1);
@@ -83,7 +83,7 @@ const OrderList: React.FC<Props> = ({ orders, setOrders, storeId }) => {
 
       const matchesStore =
         storeFilter === "all" || order.storeId === storeId;
-      return matchesSearch && matchesPayment && matchesStore;
+      return matchesSearch && matchesPayment && matchesStore ;
     });
   }, [orders, searchTerm, paymentFilter, storeFilter]);
 
@@ -176,9 +176,9 @@ const OrderList: React.FC<Props> = ({ orders, setOrders, storeId }) => {
             <th className="border border-gray-300 px-4 py-2 text-left">
               Người tạo
             </th>
-            <th className="border border-gray-300 px-4 py-2 text-left">
+            {/* <th className="border border-gray-300 px-4 py-2 text-left">
               Cửa hàng
-            </th>
+            </th> */}
             <th className="border border-gray-300 px-4 py-2 text-left">
               Ngày tạo
             </th>
