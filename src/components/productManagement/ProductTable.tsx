@@ -24,6 +24,7 @@ const ProductTable = ({ userInfo }: { userInfo: any }) => {
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
   const [categoryFilter, setCategoryFilter] = useState<string | null>(null);
+  const [noPriceOnly, setNoPriceOnly] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [editProduct, setEditProduct] = useState<Product | null>(null);
@@ -68,9 +69,13 @@ const ProductTable = ({ userInfo }: { userInfo: any }) => {
       const matchesCategory =
         categoryFilter === null || product.categoryId === categoryFilter;
 
-      return matchesSearch && matchesStatus && matchesCategory;
+      const matchesNoPrice = !noPriceOnly || product.productSizes.length === 0;
+
+      return (
+        matchesSearch && matchesStatus && matchesCategory && matchesNoPrice
+      );
     });
-  }, [products, searchTerm, statusFilter, categoryFilter]);
+  }, [products, searchTerm, statusFilter, categoryFilter, noPriceOnly]);
 
   const paginatedProducts = useMemo(() => {
     const start = (currentPage - 1) * pageSize;
@@ -182,14 +187,16 @@ const ProductTable = ({ userInfo }: { userInfo: any }) => {
           ))}
         </select>
 
-        <div className="flex justify-end mb-4 md:basis-1/5">
-          {/* <button
-          onClick={() => setShowCreateModal(true)}
-          className="flex items-center gap-2 px-4 py-2 text-white bg-blue-600 hover:bg-blue-700 rounded-md"
-        >
-          <FiPlus />
-          Thêm sản phẩm
-        </button> */}
+        <div className="flex items-center gap-2">
+          <input
+            type="checkbox"
+            id="noPriceOnly"
+            checked={noPriceOnly}
+            onChange={(e) => setNoPriceOnly(e.target.checked)}
+          />
+          <label htmlFor="noPriceOnly" className="text-sm">
+            Hiện thị sản phẩm chưa có giá
+          </label>
         </div>
       </div>
 
