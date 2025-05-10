@@ -10,39 +10,35 @@ import {
 } from 'recharts';
 
 type Order = {
-  paymentMethod: number; // 1 = Cash, 0 = Momo
-  totalAmount: number;
+  orderStatus: 'Processing' | 'Completed' | 'Cancelled';
 };
 
 type Props = {
   orders: Order[];
 };
 
-const COLORS = ['#0088FE', '#FF8042']; // Cash = Blue, Momo = Orange
+const STATUS_LABELS: Record<string, string> = {
+  Processing: 'Đang xử lý',
+  Completed: 'Hoàn thành',
+  Cancelled: 'Đã huỷ',
+};
 
-export default function PaymentMethodPieChart({ orders }: Props) {
-  const paymentStats = [
-    {
-      name: 'Tiền mặt',
-      value: orders.filter((o) => o.paymentMethod === 1).length,
-      amount: orders
-        .filter((o) => o.paymentMethod === 1)
-        .reduce((sum, o) => sum + o.totalAmount, 0),
-    },
-    {
-      name: 'Chuyển khoản',
-      value: orders.filter((o) => o.paymentMethod === 0).length,
-      amount: orders
-        .filter((o) => o.paymentMethod === 0)
-        .reduce((sum, o) => sum + o.totalAmount, 0),
-    },
-  ];
+const COLORS = ['#FFBB28', '#00C49F', '#FF4C4C']; // Yellow, Green, Red
 
-  const total = paymentStats.reduce((sum, entry) => sum + entry.value, 0);
+export default function OrderStatusPieChart({ orders }: Props) {
+  const statusStats = ['Processing', 'Completed', 'Cancelled'].map((status) => {
+    const filtered = orders.filter((o) => o.orderStatus === status);
+    return {
+      name: STATUS_LABELS[status],
+      value: filtered.length,
+    };
+  });
+
+  const total = statusStats.reduce((sum, entry) => sum + entry.value, 0);
 
   return (
     <div className="bg-white p-4 rounded-2xl shadow w-full max-w-md">
-      <h2 className="text-xl font-semibold mb-4">Tỉ lệ thanh toán</h2>
+      <h2 className="text-xl font-semibold mb-4">Trạng thái đơn hàng</h2>
       {total === 0 ? (
         <p className="text-gray-500">Chưa có đơn hàng nào.</p>
       ) : (
@@ -50,7 +46,7 @@ export default function PaymentMethodPieChart({ orders }: Props) {
           <ResponsiveContainer width="100%" height={300}>
             <PieChart>
               <Pie
-                data={paymentStats}
+                data={statusStats}
                 dataKey="value"
                 nameKey="name"
                 cx="50%"
@@ -60,7 +56,7 @@ export default function PaymentMethodPieChart({ orders }: Props) {
                   `${name}: ${(percent * 100).toFixed(0)}%`
                 }
               >
-                {paymentStats.map((entry, index) => (
+                {statusStats.map((entry, index) => (
                   <Cell
                     key={`cell-${index}`}
                     fill={COLORS[index % COLORS.length]}
@@ -68,19 +64,18 @@ export default function PaymentMethodPieChart({ orders }: Props) {
                 ))}
               </Pie>
               <Tooltip
-                formatter={(value: number, name: string) => {
-                  const entry = paymentStats.find((e) => e.name === name);
-                  const amount = entry?.amount.toLocaleString() ?? '0';
-                  return [`${value} đơn hàng - ${amount} VND`, name];
-                }}
+                formatter={(value: number, name: string) => [
+                  `${value} đơn hàng`,
+                  name,
+                ]}
               />
               <Legend />
             </PieChart>
           </ResponsiveContainer>
 
-          {/* Optional detailed legend */}
+          {/* Optional status summary below */}
           <div className="mt-4 space-y-2 text-sm text-gray-700">
-            {paymentStats.map((entry, index) => (
+            {statusStats.map((entry, index) => (
               <div key={index} className="flex justify-between">
                 <span className="flex items-center gap-2">
                   <span
@@ -89,10 +84,7 @@ export default function PaymentMethodPieChart({ orders }: Props) {
                   ></span>
                   {entry.name}
                 </span>
-                <span>
-                  {entry.value.toLocaleString()} đơn hàng -{' '}
-                  {entry.amount.toLocaleString()} VND
-                </span>
+                <span>{entry.value.toLocaleString()} đơn hàng</span>
               </div>
             ))}
           </div>

@@ -31,10 +31,10 @@ export default function Home() {
   if (loading) return <div>Loading...</div>;
 
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen bg-gray-100">
+    <div className="flex flex-col items-center justify-center min-h-screen ">
       <h1 className="text-3xl font-semibold mb-6">Doanh thu</h1>
 
-      <div className="mb-6 flex space-x-4">
+      <div className="mb-10 flex space-x-4">
         <button
           onClick={() => setActiveChart("chart1")}
           className={`px-4 py-2 rounded-lg font-medium ${
