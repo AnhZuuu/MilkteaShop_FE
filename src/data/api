@@ -1,21 +1,21 @@
 <!-- Link mockapi data  -->
 
-<!-- categories :  -->
+<!-- categories :  (naru)-->
 https://6801a85581c7e9fbcc430ea1.mockapi.io/swp391/categories
 
-<!-- categoryExtraMappings :  -->
+<!-- categoryExtraMappings :  (thuytien)-->
 https://6804ddf079cb28fb3f5c082f.mockapi.io/swp391/CategoryExtraMappings
 
-<!-- ComboItems :  -->
+<!-- ComboItems :  (thuytien)-->
 https://6804ddf079cb28fb3f5c082f.mockapi.io/swp391/ComboItems
 
-<!-- products:  -->
+<!-- products:  (naru)-->
 https://6801a85581c7e9fbcc430ea1.mockapi.io/swp391/Products
 
-<!-- paymentMethods :  -->
+<!-- paymentMethods :  (FPT)-->
 https://6804e0a979cb28fb3f5c0f7e.mockapi.io/swp391/PaymentMethods
 
-<!-- orders:  -->
+<!-- orders:  (FPT)-->
 https://6804e0a979cb28fb3f5c0f7e.mockapi.io/swp391/Orders
 
 <!-- orderItems : -->
